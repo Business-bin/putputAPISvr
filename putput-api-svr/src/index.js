@@ -18,7 +18,6 @@ const api = require('./api');
 
 db.connect();
 
-// const app = websockify(new Koa());
 const app = new Koa();
 
 app.use((ctx, next) => {

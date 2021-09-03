@@ -30,4 +30,4 @@ Egg.statics.localRegister = async function({
   return egg.save();
 };
 
-module.exports = mongoose.model('testegg', Egg);
+module.exports = mongoose.model('eggs', Egg);
