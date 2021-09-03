@@ -1,5 +1,5 @@
-const Egg = require('db/models/Egg');
-const Stack = require('db/models/Stack');
+const Egg = require('../../../db/models/Egg');
+const Stack = require('../../../db/models/Stack');
 const { Types: { ObjectId } } = require('mongoose');
 
 exports.registerTest = async (param) => {

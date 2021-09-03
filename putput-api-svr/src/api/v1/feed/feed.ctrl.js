@@ -1,6 +1,6 @@
-const Egg = require('db/models/Egg');
-const Mpoint = require('db/models/Mpoint');
-const Stack = require('db/models/Stack');
+const Egg = require('../../../db/models/Egg');
+const Mpoint = require('../../../db/models/Mpoint');
+const Stack = require('../../../db/models/Stack');
 const { Types: { ObjectId } } = require('mongoose');
 
 exports.search = async (param) => {

@@ -1,5 +1,5 @@
-const Egg = require('api/v1/egg');
-const Feed = require('api/v1/feed');
+const Egg = require('../egg');
+const Feed = require('../feed');
 
 const cmds = {
     // 알&상자 검색 테스트
