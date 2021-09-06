@@ -1,0 +1,73 @@
+const jwtSecret = process.env.JWT_SECRET;
+const jwt = require('jsonwebtoken');
+
+//JWT 토큰 생성
+/*
+    payload : 사용자의 profile 정보(토큰에 넣을 데이터)
+ */
+function generateToken(payload) {
+    return new Promise(
+        (resolve, reject) => {
+            jwt.sign(
+                payload,
+                jwtSecret,
+                {
+                    expiresIn: '1d'
+                }, (error, token) => {
+                    if(error) reject(error);
+                    resolve(token);
+                }
+            );
+        }
+    );
+};
+exports.generateToken = generateToken;
+
+// JWT 디코딩
+// jwtSecret을 통해 토큰을 디코딩, 유효성 검사 뒤 토큰에 담긴 데이터 반환
+function decodeToken(token) {
+    return new Promise(
+        (resolve, reject) => {
+            jwt.verify(token, jwtSecret, (error, decoded) => {
+                if(error) reject(error);
+                resolve(decoded);
+            });
+        }
+    );
+}
+
+// JWT 처리 미들웨어
+exports.jwtMiddleware = async (ctx, next) => {
+    console.log("---jwtMiddleware---");
+    const token = ctx.cookies.get('access_token'); // ctx 에서 access_token 을 읽어옵니다
+    console.log("cookies token = "+token);
+    if(!token) return next(); // 토큰이 없으면 바로 다음 작업을 진행합니다.
+
+    try {
+        const decoded = await decodeToken(token); // 토큰을 디코딩 합니다
+        var a= Date.now() / 1000
+        console.log("decoded = "+a);
+        console.log("decoded = "+decoded.iat);
+        // 토큰 만료일이 하루밖에 안남으면 토큰을 재발급합니다
+        if(Date.now() / 1000 - decoded.iat > 60 * 60 * 12) {
+            // 하루가 지나면 갱신해준다.
+            const { _id, profile } = decoded;
+            const freshToken = await generateToken({ _id, profile }, 'account');
+
+            // 쿠키에 설정
+            ctx.cookies.set('access_token', freshToken, {
+                maxAge: 1000 * 60 * 60 * 24, // 1days
+                httpOnly: true
+            });
+        }
+
+        // ctx.request.user 에 디코딩된 값을 넣어줍니다
+        ctx.request.user = decoded;
+    } catch (e) {
+        // token validate 실패
+        console.log("e "+e);
+        ctx.request.user = null;
+    }
+    console.log("---------");
+    return next();
+};

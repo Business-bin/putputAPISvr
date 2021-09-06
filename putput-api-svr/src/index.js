@@ -13,12 +13,13 @@ const bodyParser = require('koa-bodyparser');
 const compress = require('koa-compress');
 
 const db = require('./db');
-
 const api = require('./api');
 
 db.connect();
 
 const app = new Koa();
+const { jwtMiddleware } = require('./lib/jwtToken'); // jwt 미들웨어
+
 
 app.use((ctx, next) => {
   ctx.set('Access-Control-Allow-Origin', '*');
@@ -35,6 +36,7 @@ app.use(compress());
 
 
 app.use(bodyParser());
+app.use(jwtMiddleware);
 
 const router = new Router();
 router.use('/api', api.routes());

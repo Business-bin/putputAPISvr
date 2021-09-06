@@ -1,6 +1,8 @@
 const Egg = require('../egg');
 const Feed = require('../feed');
 
+const Token = require('../token');
+
 const cmds = {
     // 알&상자 검색 테스트
     'FeedSearch' : Feed.search,
@@ -8,6 +10,9 @@ const cmds = {
     'EggCreate': Egg.register,
     'EggSearch': Egg.search,
 
+    // token test
+    'TokenTest': Token.tokenTest,
+    'TokenClaerTest': Token.tokenTest,
 }
 
 
@@ -56,11 +61,22 @@ exports.cmd = async (ctx) => {
     if (rep.result !== null) {
         try {
             rep.body.ND = rep.result;
-            console.log("command.js----------------");
         } catch (e) {
             rep.body.error = '결과 변환 오류';
             console.log(e);
         }
+    }
+    // console.log(rep.result)
+    console.log("----------------");
+    // console.log(rep.result.result);
+    if(rep.data.cmd != "TokenTest"){
+        console.log(rep.result.token);
+        ctx.cookies.set('access_token', rep.result.token, { httpOnly: true, maxAge: 1000 * 60 * 60 * 24  });
+    }else{
+        ctx.cookies.set('access_token', null, {
+            maxAge: 0,
+            httpOnly: true
+        });
     }
     ctx.body = rep.body;
 };
