@@ -1,9 +1,19 @@
+const User = require('../user');
+
 const Egg = require('../egg');
 const Feed = require('../feed');
 
 const Token = require('../token');
 
 const cmds = {
+    // 유저
+    'req_Join' : User.register, // 회원가입
+    'req_RevealID' : User.findId,  // 아이디 찾기
+    'req_RevealPassword' : User.findPw,  // 패스워드 찾기
+    'req_UserUpdate' : User.patchUpdate, // 계정 수정
+    'test1' : User.test1,
+    'test2' : User.test2,
+
     // 알&상자 검색 테스트
     'FeedSearch' : Feed.search,
     //egg
