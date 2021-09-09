@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 require('mongoose-double')(mongoose);
-const log = require('lib/log');
+const log = require('../lib/log');
 
 const {
   MONGO_URI: mongoURI
