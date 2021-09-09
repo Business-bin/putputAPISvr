@@ -5,11 +5,11 @@ const datefomat = require('../../lib/dateFomat');
 const User = new Schema({
     join_p_key: {
         type: Schema.Types.ObjectId,    // 프로젝트키(참가중인)
-        decrypt: null
+        default: null
     },
     join_p_teamKey: {                   // 프로젝트 내 참가한 팀 키
         type: Schema.Types.ObjectId,
-        decrypt: null
+        default: null
     },
     user_id: String,                    // 아이디
     user_pw: String,                    // 패스워드

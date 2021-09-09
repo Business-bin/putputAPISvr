@@ -3,15 +3,7 @@ const Mpoint = require('../../../db/models/Mpoint');
 const Stack = require('../../../db/models/Stack');
 const { Types: { ObjectId } } = require('mongoose');
 
-const jwtMiddleware = require('../../../lib/jwtToken');
-
 exports.search = async (param) => {
-    let token = null;
-    try {
-        token = await jwtMiddleware.generateToken(param);
-    } catch (e) {
-        ctx.throw(500, e);
-    }
     try {
         const eggs = await Egg.find().limit(5).exec();
         const mpoints = await Mpoint.find().limit(5).exec();
@@ -45,8 +37,7 @@ exports.search = async (param) => {
             data: {
                 egg : eggList,
                 box : mpointList
-            },
-            token : token
+            }
         });
     } catch (e) {
         console.log(e);

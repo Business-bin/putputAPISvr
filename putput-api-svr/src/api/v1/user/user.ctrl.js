@@ -1,6 +1,7 @@
 const User = require('../../../db/models/User');
 const crypto = require('../../../lib/CryptoAES');
 const { Types: { ObjectId } } = require('mongoose');
+const jwtMiddleware = require('../../../lib/jwtToken');
 
 exports.test1 = async (param) => {
     const {pw} = param;
@@ -22,16 +23,15 @@ exports.test2 = async (param) => {
 }
 // 회원가입
 exports.register = async (param) => {
-    const {
-        userId,
-        password,
+    let {
+        user_id,
+        user_pw,
         name,
         email,
         phone,
         nick
     } = param;
-    const user_id = userId;
-    const user_pw = crypto.encryptAES(password);
+    user_pw = crypto.encryptAES(user_pw);
 
     try {
         // 아이디 중복 확인
@@ -135,6 +135,60 @@ exports.findPw = async (param) => {
         });
     }
 };
+
+// 로그인
+exports.login = async (param) => {
+    const { user_id, user_pw } = param
+    param = {user_id}
+    try{
+        const user = await User.findOne(param).exec();
+        if(!user) {
+            return ({
+                result: 'fail',
+                msg: '회원 정보 없음'
+            });
+        }else{
+            if(crypto.decryptAES(user.user_pw) != user_pw){
+                return ({
+                    result: 'fail',
+                    msg: '회원 정보 없음'
+                });
+            }
+            // 프로젝트 조회 추가예정
+
+            // 프로젝트 팀 조회 추가예정
+
+            // 박스 조회 추가예정
+
+            let token = null;
+            try {
+                token = await jwtMiddleware.generateToken(param);
+            } catch (e) {
+                console.log(500, e);
+                return ({
+                    result: 'fail',
+                    msg: '토큰 생성 오류'
+                });
+            }
+            return ({
+                result: 'ok',
+                data: {
+                    account: {
+                        user: user
+                    }
+                },
+                token : token
+            });
+        }
+
+    } catch (e){
+        console.log(e);
+        return ({
+            result: 'fail',
+            msg: '로그인 오류'
+        });
+    }
+}
 
 // 회원정보 수정
 exports.patchUpdate = async (param) => {
