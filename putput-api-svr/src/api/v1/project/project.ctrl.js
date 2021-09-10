@@ -2,6 +2,8 @@ const Project = require('../../../db/models/Project');
 const Team = require('../../../db/models/Team');
 // const { Types: { ObjectId }, startSession } = require('mongoose');
 const mongoose = require('mongoose');
+const parseJson = require('../../../lib/common');
+
 exports.register = async (param) => {
     const {
         user_key,
@@ -76,6 +78,40 @@ exports.register = async (param) => {
     // });
 };
 
+exports.findOne = async (param) => {
+    try {
+        let project =
+            await Project.findOne(
+                param,
+                {"_id":true, "user_key":true, "title":true, "join_code":true
+                    , "teams":true, "state":true, "box_cnt":true}
+            ).exec();
+        if(project){
+            project = JSON.parse(JSON.stringify(project));
+            project.projectKey = project._id;
+            delete project._id;
+            return ({
+                result: 'ok',
+                type: "project",
+                data: {
+                    project
+                }
+            });
+        }else{
+            // return null;
+            return ({
+                result: 'fail',
+                data: {}
+            });
+        }
+    }catch (e) {
+        console.log(e);
+        return ({
+            result: 'fail',
+            msg: '프로젝트 검색 실패'
+        });
+    }
+}
 exports.searchTest = async (param) => {
     try {
         const projects = await Project.find(param).limit(5).exec();

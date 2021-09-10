@@ -1,5 +1,8 @@
+const log = require('../../../lib/log');
 const User = require('../user');
 const Project = require('../project');
+const Box = require('../box');
+const Team = require('../team');
 
 const Egg = require('../egg');
 const Feed = require('../feed');
@@ -19,6 +22,14 @@ const cmds = {
 
     // 프로젝트
     'req_ProjectCreate' : Project.register,   // 프로젝트 생성
+    'req_ProjectFind' : Project.findOne,
+
+    // 상자
+    'reg_BoxFind' : Box.findOne,
+    'reg_BoxSearch' : Box.search,
+
+    // 팀
+    'reg_TeamSearch' : Team.search,
 
     // 알&상자 검색 테스트
     'FeedSearch' : Feed.search,
@@ -48,23 +59,28 @@ exports.cmd = async (ctx) => {
     }
 
     if (rep.data === null) {
+        log.info('rep.data null');
         rep.body.error = '잘못된 요청 정보입니다';
     } else {
         try {
             if (rep.data.cmd === undefined || rep.data.param === undefined) {
+                log.info('rep.data.cmd or rep.data.param undefined');
                 rep.body.error = '잘못된 요청문 입니다.';
             } else {
                 // console.log("rep.data.cmd = "+rep.data.cmd)
                 if(cmds[rep.data.cmd] === undefined){
+                    log.info('CMD not found.');
                     rep.result = {
                         result: 'fail',
                         msg: `${rep.data.cmd} : CMD not found.`
                     }
                 }else if(rep.data.cmd === 'req_Join' || rep.data.cmd === 'req_RevealID' || rep.data.cmd === 'req_RevealPassword' || rep.data.cmd === 'req_Login'){
+                    log.info('request '+rep.data.cmd);
                     rep.result = await cmds[rep.data.cmd](rep.data.param);
                 }else{
                     let tokenUserId;
                     try{
+                        log.info('request '+rep.data.cmd);
                         tokenUserId = ctx.request.user.user_id;
                         rep.result = tokenUserId != rep.data.user ? {
                                 result: 'fail',
@@ -73,6 +89,7 @@ exports.cmd = async (ctx) => {
                             : await cmds[rep.data.cmd](rep.data.param);
 
                     }catch (e){
+                        log.info('not login');
                         rep.result = {
                             result: 'fail',
                             msg: `not login`
@@ -99,10 +116,9 @@ exports.cmd = async (ctx) => {
         }
     }
     // console.log(rep.result)
-    console.log("----------------");
     // console.log(rep.result.result);
     if(rep.data.cmd === "req_Login"){
-        console.log(rep.result.token);
+        // console.log("token = "+rep.result.token);
         ctx.cookies.set('access_token', rep.result.token, { httpOnly: true, maxAge: 1000 * 60 * 60 * 24  });
         delete rep.result.token;
     }

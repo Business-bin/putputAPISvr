@@ -2,25 +2,10 @@ const User = require('../../../db/models/User');
 const crypto = require('../../../lib/CryptoAES');
 const { Types: { ObjectId } } = require('mongoose');
 const jwtMiddleware = require('../../../lib/jwtToken');
+const Project = require('../project');
+const Team = require('../team');
+const Box = require('../box');
 
-exports.test1 = async (param) => {
-    const {pw} = param;
-    const pwen = crypto.encryptAES(pw);
-    console.log(pwen);
-    return ({
-        result: 'fail',
-        pwen: pwen
-    });
-}
-exports.test2 = async (param) => {
-    const {pw} = param;
-    const pwde = crypto.decryptAES(pw);
-    console.log(pwde);
-    return ({
-        result: 'fail',
-        pwde: pwde
-    });
-}
 // 회원가입
 exports.register = async (param) => {
     let {
@@ -141,24 +126,47 @@ exports.login = async (param) => {
     const { user_id, user_pw } = param
     param = {user_id}
     try{
-        const user = await User.findOne(param).exec();
+        let user =
+            await User.findOne(
+                param,
+                {"_id":true, "user_id":true, "user_pw":true, "email":true, "max_p":true
+                    , "create_p":true, "join_p_key":true, "join_p_teamKey":true}
+            ).exec();
         if(!user) {
             return ({
                 result: 'fail',
                 msg: '회원 정보 없음'
             });
+        }else if(crypto.decryptAES(user.user_pw) != user_pw){
+            return ({
+                result: 'fail',
+                msg: '회원 정보 없음'
+            });
         }else{
-            if(crypto.decryptAES(user.user_pw) != user_pw){
-                return ({
-                    result: 'fail',
-                    msg: '회원 정보 없음'
-                });
+            user = JSON.parse(JSON.stringify(user));
+            user.userKey = user._id;
+            delete user._id;
+            // 프로젝트 조회
+            let project = await Project.findOne({_id:user.join_p_key});
+            if(project.result === 'ok') {
+                project = project.data.project;
+            }else{
+                project = project.data;
             }
-            // 프로젝트 조회 추가예정
-
-            // 프로젝트 팀 조회 추가예정
-
-            // 박스 조회 추가예정
+            // 팀 조회
+            let teamList = await Team.search({project_key:user.join_p_key});
+            if(teamList.result === 'ok') {
+                teamList = teamList.data.team;
+            }else{
+                teamList = teamList.data;
+            }
+            // 박스 조회
+            let boxList = await Box.search({project_key:user.join_p_key});
+            if(boxList.result === 'ok') {
+                boxList = boxList.data.box;
+            }else{
+                boxList = boxList.data;
+            }
 
             let token = null;
             try {
@@ -173,14 +181,14 @@ exports.login = async (param) => {
             return ({
                 result: 'ok',
                 data: {
-                    account: {
-                        user: user
-                    }
+                    account: user,
+                    project,
+                    teamList,
+                    boxList
                 },
                 token : token
             });
         }
-
     } catch (e){
         console.log(e);
         return ({
@@ -221,3 +229,22 @@ exports.patchUpdate = async (param) => {
     }
 }
 
+
+exports.test1 = async (param) => {
+    const {pw} = param;
+    const pwen = crypto.encryptAES(pw);
+    console.log(pwen);
+    return ({
+        result: 'fail',
+        pwen: pwen
+    });
+}
+exports.test2 = async (param) => {
+    const {pw} = param;
+    const pwde = crypto.decryptAES(pw);
+    console.log(pwde);
+    return ({
+        result: 'fail',
+        pwde: pwde
+    });
+}

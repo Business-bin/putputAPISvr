@@ -1,1 +1,3 @@
-exports.parseJSON = require('./parseJSON');
+const parseJSON = require('./parseJSON');
+
+module.exports = parseJSON;
