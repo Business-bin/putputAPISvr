@@ -2,7 +2,7 @@ const Egg = require('../../../db/models/Egg');
 const Stack = require('../../../db/models/Stack');
 const { Types: { ObjectId } } = require('mongoose');
 
-exports.registerTest = async (param) => {
+exports.register = async (param) => {
     const {
         u_id,
         u_name,
@@ -41,7 +41,7 @@ exports.registerTest = async (param) => {
     }
 };
 
-exports.searchTest = async (param) => {
+exports.search = async (param) => {
     try {
         const eggs = await Egg.find(param).limit(5).exec();
         var eggList = [];

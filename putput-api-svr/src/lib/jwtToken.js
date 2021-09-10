@@ -44,7 +44,6 @@ exports.jwtMiddleware = async (ctx, next) => {
     try {
         const decoded = await decodeToken(token); // 토큰디코딩
         console.log("decoded = "+decoded.user_id);
-        console.log("decoded = "+decoded.iat);
         // 토큰 만료일이 12시간밖에 안남으면 토큰 재발급
         if(Date.now() / 1000 - decoded.iat > 60 * 60 * 12) {
             // 12시간 지나면 갱신

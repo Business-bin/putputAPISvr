@@ -1,4 +1,5 @@
 const User = require('../user');
+const Project = require('../project');
 
 const Egg = require('../egg');
 const Feed = require('../feed');
@@ -15,6 +16,9 @@ const cmds = {
     'req_UserUpdate' : User.patchUpdate, // 계정 수정
     'test1' : User.test1,
     'test2' : User.test2,
+
+    // 프로젝트
+    'req_ProjectCreate' : Project.register,   // 프로젝트 생성
 
     // 알&상자 검색 테스트
     'FeedSearch' : Feed.search,
@@ -100,6 +104,7 @@ exports.cmd = async (ctx) => {
     if(rep.data.cmd === "req_Login"){
         console.log(rep.result.token);
         ctx.cookies.set('access_token', rep.result.token, { httpOnly: true, maxAge: 1000 * 60 * 60 * 24  });
+        delete rep.result.token;
     }
     // else if(rep.data.cmd === "req_Logout"){
     //     ctx.cookies.set('access_token', null, {

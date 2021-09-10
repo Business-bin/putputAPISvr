@@ -23,7 +23,7 @@
     "koa-router": "^7.2.1",
     "lzutf8": "^0.4.6",
     "moment": "^2.23.0",
-    "mongoose": "^4.11.4",
+    "mongoose": "^5.2.18",
     "mongoose-double": "^0.0.1",
     "npm-run-all": "^4.1.5",
     "striptags": "^3.1.1"

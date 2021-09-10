@@ -11,8 +11,8 @@ module.exports = (function () {
 
   return {
     connect () {
-      return mongoose.connect(mongoURI, { useMongoClient: true }).then(
-      //return mongoose.connect(mongoURI, { useNewUrlParser: true }).then(
+      // return mongoose.connect(mongoURI, { useMongoClient: true }).then(
+      return mongoose.connect(mongoURI).then(
         () => {
           log.info('Successfully connected to mongodb');
         }
