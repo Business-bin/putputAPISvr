@@ -1,5 +1,6 @@
 const Project = require('../../../db/models/Project');
 const Team = require('../../../db/models/Team');
+const User = require('../../../db/models/User');
 // const { Types: { ObjectId }, startSession } = require('mongoose');
 const mongoose = require('mongoose');
 const parseJson = require('../../../lib/common');
@@ -49,9 +50,21 @@ exports.register = async (param) => {
                     msg: '등록 실패 team'
                 });
             }
+            try{
+                const user = await User.update({_id:project.user_key}, {create_p:+1},{
+                    upsert: false,
+                    multi: false
+                }).exec();
+            }catch (e) {
+                console.log(e);
+                return ({
+                    result: 'fail',
+                    msg: '등록 실패 user'
+                });
+            }
             project = {
                 projectKey: project._id
-                , user_key: user_key
+                , user_key: project.user_key
                 , title: project.title
                 , join_code: project.join_code
                 , state: project.state
