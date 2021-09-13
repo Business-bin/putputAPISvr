@@ -53,7 +53,8 @@ exports.update = async (param) => {
         }
         const egg = await Egg.findOneAndUpdate(matchQ, {$set:fields}, {
             upsert: false,
-            returnNewDocument: true // 결과 반환
+            returnNewDocument: true, // 결과 반환
+            new: true
         }).exec();
         console.log(`egg = ${egg}`)
         if(egg){
@@ -87,7 +88,8 @@ exports.delete = async (param) => {
         }
         const egg = await Egg.findOneAndUpdate(matchQ, {$set:fields}, {
             upsert: false,
-            returnNewDocument: true
+            returnNewDocument: true,
+            new: true
         }).exec();
         console.log(egg);
         if(egg){

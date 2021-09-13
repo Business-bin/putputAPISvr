@@ -12,12 +12,16 @@ exports.register = async (param) => {
     } = param;
 
     try {
-        const comment = await Comment.localRegister({
+        let comment = await Comment.localRegister({
             egg_key,
             user_id,
             ac_comment,
             emotion
         });
+        comment = {
+            commentKey : comment._id
+            , date : comment.reg_dttm
+        }
 
         return ({
             result: 'ok',
@@ -37,7 +41,7 @@ exports.register = async (param) => {
 exports.update = async (param) => {
     const matchQ = {_id : param.commentKey, det_dttm:null};
     const fields = {
-        ac_comment : param.contents
+        ac_comment : param.ac_comment
         , emotion : param.emotion
     }
     try{
@@ -49,7 +53,8 @@ exports.update = async (param) => {
         }
         const comment = await Comment.findOneAndUpdate(matchQ, {$set:fields}, {
             upsert: false,
-            returnNewDocument: true // 결과 반환
+            returnNewDocument: true,
+            new: true
         }).exec();
         console.log(`comment = ${comment}`)
         if(comment){
@@ -72,7 +77,7 @@ exports.update = async (param) => {
 exports.delete = async (param) => {
     const matchQ = {_id : param.commentKey, user_id : param.user_id, det_dttm:null};
     const fields = {
-        del_dttm : datefomat.getCurrentDate()
+        det_dttm : datefomat.getCurrentDate()
     }
     try{
         if (!ObjectId.isValid(matchQ._id) || fields === undefined) {
@@ -83,7 +88,8 @@ exports.delete = async (param) => {
         }
         const comment = await Comment.findOneAndUpdate(matchQ, {$set:fields}, {
             upsert: false,
-            returnNewDocument: true
+            returnNewDocument: true,
+            new: true
         }).exec();
         console.log(comment);
         if(comment){
