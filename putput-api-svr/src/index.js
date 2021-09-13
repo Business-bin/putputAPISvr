@@ -45,5 +45,5 @@ app.use(router.routes());
 app.use(router.allowedMethods());
 
 app.listen(port, '0.0.0.0', () => {
-  console.log(`port ${port}`);
+  console.log(`Open port : ${port} ${new Date}`);
 });

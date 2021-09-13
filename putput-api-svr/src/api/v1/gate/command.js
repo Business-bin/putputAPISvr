@@ -15,6 +15,7 @@ const cmds = {
     'req_RevealID' : User.findId,  // 아이디 찾기
     'req_RevealPassword' : User.findPw,  // 패스워드 찾기
     'req_Login' : User.login,   // 로그인
+    'req_Logout' : User.logout,   // 로그인
     
     'req_UserUpdate' : User.patchUpdate, // 계정 수정
     'test1' : User.test1,
@@ -33,8 +34,10 @@ const cmds = {
 
     // 알&상자 검색 테스트
     'FeedSearch' : Feed.search,
+
     //egg
-    'EggCreate': Egg.register,
+    'req_Writing': Egg.register,
+    'req_Modify': Egg.update,
     'EggSearch': Egg.search,
 
     // token test
@@ -51,6 +54,8 @@ exports.cmd = async (ctx) => {
         data: null,
         result: null
     };
+
+    console.log(`access_token === ${ctx.cookies.get('access_token')}`)
 
     try {
         rep.data = ND !== undefined ? ND : null
@@ -121,12 +126,11 @@ exports.cmd = async (ctx) => {
         // console.log("token = "+rep.result.token);
         ctx.cookies.set('access_token', rep.result.token, { httpOnly: true, maxAge: 1000 * 60 * 60 * 24  });
         delete rep.result.token;
+    }else if(rep.data.cmd === "req_Logout"){
+        ctx.cookies.set('access_token', null, {
+            maxAge: 0,
+            httpOnly: true
+        });
     }
-    // else if(rep.data.cmd === "req_Logout"){
-    //     ctx.cookies.set('access_token', null, {
-    //         maxAge: 0,
-    //         httpOnly: true
-    //     });
-    // }
     ctx.body = rep.body;
 };

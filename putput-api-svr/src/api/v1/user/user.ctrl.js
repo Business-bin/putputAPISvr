@@ -124,7 +124,7 @@ exports.findPw = async (param) => {
 // 로그인
 exports.login = async (param) => {
     const { user_id, user_pw } = param
-    param = {user_id}
+    param = {user_id, det_dttm : null}
     try{
         let user =
             await User.findOne(
@@ -147,21 +147,21 @@ exports.login = async (param) => {
             user.userKey = user._id;
             delete user._id;
             // 프로젝트 조회
-            let project = await Project.findOne({_id:user.join_p_key});
+            let project = await Project.findOne({_id:user.join_p_key, det_dttm: null});
             if(project.result === 'ok') {
                 project = project.data.project;
             }else{
                 project = project.data;
             }
             // 팀 조회
-            let teamList = await Team.search({project_key:user.join_p_key});
+            let teamList = await Team.search({project_key:user.join_p_key, det_dttm: null});
             if(teamList.result === 'ok') {
                 teamList = teamList.data.team;
             }else{
                 teamList = teamList.data;
             }
             // 박스 조회
-            let boxList = await Box.search({project_key:user.join_p_key});
+            let boxList = await Box.search({project_key:user.join_p_key, det_dttm: null});
             if(boxList.result === 'ok') {
                 boxList = boxList.data.box;
             }else{
@@ -196,6 +196,13 @@ exports.login = async (param) => {
             msg: '로그인 오류'
         });
     }
+}
+
+exports.logout = async (param) => {
+    return ({
+        result: 'ok',
+        msg: '로그아웃'
+    });
 }
 
 // 회원정보 수정

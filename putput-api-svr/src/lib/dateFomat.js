@@ -1,11 +1,11 @@
 exports.getCurrentDate = () => {
-    var date = new Date();
-    var year = date.getFullYear();
-    var month = date.getMonth();
-    var today = date.getDate();
-    var hours = date.getHours();
-    var minutes = date.getMinutes();
-    var seconds = date.getSeconds();
-    var milliseconds = date.getMilliseconds();
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const today = date.getDate();
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    const seconds = date.getSeconds();
+    const milliseconds = date.getMilliseconds();
     return new Date(Date.UTC(year, month, today, hours, minutes, seconds, milliseconds));
 }
