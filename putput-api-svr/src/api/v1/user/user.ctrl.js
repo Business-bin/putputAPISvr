@@ -199,10 +199,18 @@ exports.login = async (param) => {
 }
 
 exports.logout = async (param) => {
-    return ({
-        result: 'ok',
-        msg: '로그아웃'
-    });
+    console.log(`tokenUserId = ${tokenUserId}`)
+    if(tokenUserId === param.user_id){
+        return ({
+            result: 'ok',
+            msg: '로그아웃'
+        });
+    }else{
+        return ({
+            result: 'fail',
+            msg: '로그아웃 실패'
+        });
+    }
 }
 
 // 회원정보 수정

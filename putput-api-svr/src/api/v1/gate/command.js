@@ -127,10 +127,12 @@ exports.cmd = async (ctx) => {
         ctx.cookies.set('access_token', rep.result.token, { httpOnly: true, maxAge: 1000 * 60 * 60 * 24  });
         delete rep.result.token;
     }else if(rep.data.cmd === "req_Logout"){
-        ctx.cookies.set('access_token', null, {
-            maxAge: 0,
-            httpOnly: true
-        });
+        if(rep.result.result === 'ok'){
+            ctx.cookies.set('access_token', null, {
+                maxAge: 0,
+                httpOnly: true
+            });
+        }
     }
     ctx.body = rep.body;
 };
