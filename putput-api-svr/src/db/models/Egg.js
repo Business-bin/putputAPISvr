@@ -1,33 +1,37 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
+const datefomat = require('../../lib/dateFomat');
 
 const Egg = new Schema({
-  u_id: Schema.Types.ObjectId,
-  u_name: String,
-  e_content: String,
-  e_file: String,
-  e_show_cnt: Schema.Types.Number,
-  e_lat: String,
-  e_lon: String,
-  reg_dttm: {
-    type: Date,
-    default: Date.now
-  }
+    user_id: String,                    // 작성자 아이디
+    contents: String,                   // 글 내용
+    pic_url: String,                    // 이미지경로
+    emotion: String,                    // 감정표현
+    show_cnt: Schema.Types.Number,      // 조회수 d 0
+    comment_cnt: Schema.Types.Number,   // 댓글개수 d 0
+    latitude: String,                   // 위도
+    longitude: String,                  // 경도
+    reg_dttm: {
+        type: Date,
+        default: datefomat.getCurrentDate()
+    },
+    del_dttm: {
+        type: Date,
+        default: null
+    }
 });
 
 Egg.statics.localRegister = async function({
-   u_id, u_name, e_content, e_file, e_show_cnt, e_lat, e_lon}) {
-
-  const egg = new this({
-    u_id,
-    u_name,
-    e_content,
-    e_file,
-    e_show_cnt,
-    e_lat,
-    e_lon
-  });
-  return egg.save();
-};
+    user_id, contents, pic_url, emotion}) {
+        const egg = new this({
+            user_id,
+            contents,
+            pic_url,
+            emotion,
+            show_cnt : 0,
+            comment_cnt : 0
+        });
+        return egg.save();
+    };
 
 module.exports = mongoose.model('eggs', Egg);
