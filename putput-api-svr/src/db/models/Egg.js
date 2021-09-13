@@ -11,14 +11,8 @@ const Egg = new Schema({
     comment_cnt: Schema.Types.Number,   // 댓글개수 d 0
     latitude: String,                   // 위도
     longitude: String,                  // 경도
-    reg_dttm: {
-        type: Date,
-        default: datefomat.getCurrentDate()
-    },
-    del_dttm: {
-        type: Date,
-        default: null
-    }
+    reg_dttm: Date,
+    det_dttm: Date
 });
 
 Egg.statics.localRegister = async function({
@@ -31,7 +25,9 @@ Egg.statics.localRegister = async function({
             latitude,
             longitude,
             show_cnt : 0,
-            comment_cnt : 0
+            comment_cnt : 0,
+            reg_dttm : datefomat.getCurrentDate(),
+            det_dttm : null
         });
         return egg.save();
     };

@@ -1,6 +1,6 @@
 const Egg = require('../../../db/models/Egg');
-const Stack = require('../../../db/models/Stack');
 const { Types: { ObjectId } } = require('mongoose');
+const datefomat = require('../../../lib/dateFomat');
 
 exports.register = async (param) => {
     const {
@@ -32,13 +32,13 @@ exports.register = async (param) => {
         console.log(e);
         return ({
             result: 'fail',
-            msg: '등록 실패'
+            msg: '글 등록 실패'
         });
     }
 };
 
 exports.update = async (param) => {
-    const matchQ = {_id : param.eggKey, del_dttm:null};
+    const matchQ = {_id : param.eggKey, det_dttm:null};
     const fields = {
         contents : param.contents
         , pic_URL : param.pic_URL
@@ -51,20 +51,16 @@ exports.update = async (param) => {
                 msg: '형식 오류'
             });
         }
-        // const egg = await Egg.updateOne(key, fields,{
-        //     upsert: false,
-        //     multi: false,
-        //     new: true
-        // }).exec();
-        const egg = await Egg.findByIdAndUpdate(matchQ, {$set: fields}, {  // set을 해야 해당 필드만 update 함
+        const egg = await Egg.findOneAndUpdate(matchQ, {$set:fields}, {
             upsert: false,
-            new: true
+            returnNewDocument: true // 결과 반환
         }).exec();
-        console.log(`egg = ${JSON.stringify(egg)}`)
+        console.log(`egg = ${egg}`)
         if(egg){
             return ({
                 result: 'ok',
                 data: {
+                    egg // 리턴값 삭제예정
                 }
             });
         }
@@ -76,6 +72,41 @@ exports.update = async (param) => {
         });
     }
 }
+
+exports.delete = async (param) => {
+    const matchQ = {_id : param.eggKey, user_id : param.user_id, det_dttm:null};
+    const fields = {
+        del_dttm : datefomat.getCurrentDate()
+    }
+    try{
+        if (!ObjectId.isValid(matchQ._id) || fields === undefined) {
+            return ({
+                result: 'fail',
+                msg: '형식 오류'
+            });
+        }
+        const egg = await Egg.findOneAndUpdate(matchQ, {$set:fields}, {
+            upsert: false,
+            returnNewDocument: true
+        }).exec();
+        console.log(egg);
+        if(egg){
+            return ({
+                result: 'ok',
+                data: {
+                    egg // 리턴값 삭제예정
+                }
+            });
+        }
+    }catch (e) {
+        console.log(e);
+        return ({
+            result: 'fail',
+            msg: '글 삭제 실패'
+        });
+    }
+}
+
 exports.search = async (param) => {
     try {
         const eggs = await Egg.find(param).limit(5).exec();

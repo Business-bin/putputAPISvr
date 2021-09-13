@@ -3,8 +3,9 @@ const User = require('../user');
 const Project = require('../project');
 const Box = require('../box');
 const Team = require('../team');
-
 const Egg = require('../egg');
+const Comment = require('../comment');
+
 const Feed = require('../feed');
 
 const Token = require('../token');
@@ -38,7 +39,13 @@ const cmds = {
     //egg
     'req_Writing': Egg.register,
     'req_Modify': Egg.update,
+    'req_Delete': Egg.delete,
     'EggSearch': Egg.search,
+
+    // 댓글
+    'req_CommentWriting': Comment.register,
+    'req_CommentModify': Comment.update,
+    'req_CommentDeleete': Comment.delete,
 
     // token test
     'TokenTest': Token.tokenTest,

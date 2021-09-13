@@ -7,14 +7,8 @@ const Comment = new Schema({
     user_id: String,     // 작성자 아이디
     ac_comment: String,                 // 댓글 내용
     emotion: String,                    // 감정표현
-    reg_dttm: {
-        type: Date,
-        default: datefomat.getCurrentDate()
-    },
-    del_dttm: {
-        type: Date,
-        default: null
-    }
+    reg_dttm: Date,
+    det_dttm: Date
 });
 
 Comment.statics.localRegister = async function({
@@ -24,7 +18,9 @@ Comment.statics.localRegister = async function({
         egg_key,
         user_id,
         ac_comment,
-        emotion
+        emotion,
+        reg_dttm : datefomat.getCurrentDate(),
+        det_dttm : null
     });
     return comment.save();
 };
