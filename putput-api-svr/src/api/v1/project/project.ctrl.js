@@ -122,39 +122,25 @@ exports.findOne = async (param) => {
         });
     }
 }
-exports.searchTest = async (param) => {
+exports.search = async (param) => {
     try {
-        const projects = await Project.find(param).limit(5).exec();
-        var eggList = [];
-        // for(var i=0; i<Object.keys(eggs).length; i++){
-        //     eggList.push({
-        //         key : eggs[i].id
-        //         , latitude : eggs[i].e_lat
-        //         , longitude : eggs[i].e_lon
-        //     });
-        // }
-        // console.log("--------------------------");
-        // console.log(eggList);
-        // console.log("--------------------------");
-        // if (!eggs) {
-        //     return ({
-        //         result: 'fail111',
-        //         msg: '검색 정보 없음'
-        //     });
-        // }
+        const project = await Project.find(
+            param
+            ,{_id:true, user_key:true, title:true, join_code:true
+                , teams:true, state:true, box_cnt:true}
+        ).exec();
 
         return ({
             result: 'ok',
-            type: "egg",
             data: {
-                eggList
+                project
             }
         });
     } catch (e) {
         console.log(e);
         return ({
-            result: 'fail222',
-            msg: '정보 검색 실패'
+            result: 'fail',
+            msg: '프로젝트 검색 실패'
         });
     }
 };
