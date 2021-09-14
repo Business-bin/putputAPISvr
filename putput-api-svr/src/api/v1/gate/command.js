@@ -24,6 +24,7 @@ const cmds = {
 
     // 프로젝트
     'req_ProjectCreate' : Project.register,   // 프로젝트 생성
+    'req_PublicProjectList' : Project.search,
     'req_ProjectFind' : Project.findOne,
 
     // 상자
@@ -40,7 +41,9 @@ const cmds = {
     'req_Writing': Egg.register,
     'req_Modify': Egg.update,
     'req_Delete': Egg.delete,
-    'EggSearch': Egg.search,
+    'req_EggInfo': Egg.findOne,
+    'req_EggInfoList': Egg.search,
+    'req_AroundEggList': Egg.aroundSearch,
 
     // 댓글
     'req_CommentWriting': Comment.register,
@@ -62,7 +65,7 @@ exports.cmd = async (ctx) => {
         result: null
     };
 
-    console.log(`access_token === ${ctx.cookies.get('access_token')}`)
+    log.info(`access_token === ${ctx.cookies.get('access_token')}`)
 
     try {
         rep.data = ND !== undefined ? ND : null
@@ -87,13 +90,13 @@ exports.cmd = async (ctx) => {
                         msg: `${rep.data.cmd} : CMD not found.`
                     }
                 }else if(rep.data.cmd === 'req_Join' || rep.data.cmd === 'req_RevealID' || rep.data.cmd === 'req_RevealPassword' || rep.data.cmd === 'req_Login'){
-                    log.info('request '+rep.data.cmd);
+                    log.info(`Client Request ***** ${rep.data.cmd} ***** START`);
                     rep.result = await cmds[rep.data.cmd](rep.data.param);
                 }else{
                     let tokenUserId;
                     try{
-                        log.info('request '+rep.data.cmd);
-                        tokenUserId = ctx.request.user.user_id;
+                        log.info(`Client Request ***** ${rep.data.cmd} ***** START`);
+                        tokenUserId = ctx.request.user.user_id; // 토큰값이 없을경우 에러
                         rep.result = tokenUserId != rep.data.user ? {
                                 result: 'fail',
                                 msg: `not login`
@@ -101,7 +104,7 @@ exports.cmd = async (ctx) => {
                             : await cmds[rep.data.cmd](rep.data.param);
 
                     }catch (e){
-                        log.info('not login');
+                        log.error('Not login');
                         rep.result = {
                             result: 'fail',
                             msg: `not login`
@@ -110,6 +113,7 @@ exports.cmd = async (ctx) => {
                 }
             }
         } catch (e) {
+            log.error('요청 처리중 오류');
             rep.body.error = '요청 처리중 오류';
             console.log(e);
         }
@@ -141,5 +145,6 @@ exports.cmd = async (ctx) => {
             });
         }
     }
+    log.info(`Client Request ***** ${rep.data.cmd} ***** END`);
     ctx.body = rep.body;
 };

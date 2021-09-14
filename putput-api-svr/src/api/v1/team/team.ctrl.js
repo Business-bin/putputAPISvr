@@ -14,19 +14,16 @@ exports.search = async (param) => {
                 team[t].teamKey = team[t]._id;
                 delete team[t]._id;
             }
-            return ({
-                result: 'ok',
-                type: "team",
-                data: {
-                    team
-                }
-            });
         }else{
-            return ({
-                result: 'fail',
-                data: []
-            });
+            team = [];
         }
+        return ({
+            result: 'ok',
+            type: "team",
+            data: {
+                team
+            }
+        });
     }catch (e) {
         console.log(e);
         return ({

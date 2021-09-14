@@ -22,6 +22,11 @@ exports.register = async (param) => {
             commentKey : comment._id
             , date : comment.reg_dttm
         }
+        const egg = await Egg.findOneAndUpdate({_id:egg_key}, {$inc:{comment_cnt:+1}}, {
+            upsert: false,
+            returnNewDocument: true,
+            new: true
+        }).exec();
 
         return ({
             result: 'ok',
@@ -91,7 +96,11 @@ exports.delete = async (param) => {
             returnNewDocument: true,
             new: true
         }).exec();
-        console.log(comment);
+        const egg = await Egg.findOneAndUpdate({_id:comment.egg_key}, {$inc:{comment_cnt:-1}}, {
+            upsert: false,
+            returnNewDocument: true,
+            new: true
+        }).exec();
         if(comment){
             return ({
                 result: 'ok',
@@ -105,6 +114,38 @@ exports.delete = async (param) => {
         return ({
             result: 'fail',
             msg: '댓글 삭제 실패'
+        });
+    }
+}
+
+exports.search = async (param) => {
+    try {
+        let comment =
+            await Comment.find(
+                param,
+                {"_id":true, "user_id":true, "ac_comment":true, "emotion":true, "reg_dttm":true}
+            ).exec();
+        if(comment != '' && comment != undefined && comment != null){
+            comment = JSON.parse(JSON.stringify(comment));
+            for(let c in comment){
+                comment[c].commentKey = comment[c]._id;
+                comment[c].date = comment[c].reg_dttm;
+                delete comment[c]._id;
+                delete comment[c].reg_dttm;
+            }
+        }
+        return ({
+            result: 'ok',
+            type: "comment",
+            data: {
+                comment
+            }
+        });
+    }catch (e) {
+        console.log(e);
+        return ({
+            result: 'fail',
+            msg: '팀 검색 실패'
         });
     }
 }

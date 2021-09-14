@@ -11,6 +11,7 @@ const Koa = require('koa');
 const Router = require('koa-router');
 const bodyParser = require('koa-bodyparser');
 const compress = require('koa-compress');
+const Moment = require('moment');
 
 const db = require('./db');
 const api = require('./api');
@@ -45,5 +46,9 @@ app.use(router.routes());
 app.use(router.allowedMethods());
 
 app.listen(port, '0.0.0.0', () => {
-  console.log(`Open port : ${port} ${new Date}`);
+  console.log(`
+**************************************************************************
+Open port : ${port} ${new Moment().format('YYYY-MM-DD HH:mm:ss')}
+**************************************************************************`
+  );
 });

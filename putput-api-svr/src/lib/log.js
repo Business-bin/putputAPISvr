@@ -1,28 +1,28 @@
 const chalk = require('chalk');
 const Moment = require('moment');
 
-function getTime() {
+function getDateTime() {
   const now = new Moment();
-  const time = chalk.dim(`[${now.format('HH:mm:ss')}]`);
-  return time;
+  const dateTime = chalk.dim(`[${now.format('YYYY-MM-DD HH:mm:ss')}]`);
+  return dateTime;
 }
 
 function log(...message) {
-  const time = getTime();
+  const dateTime = getDateTime();
   const type = chalk.bold('[LOG]');
-  console.log(`${time}${type}`, ...message);
+  console.log(`${dateTime}${type}`, ...message);
 }
 
 log.info = (...message) => {
-  const time = getTime();
+  const dateTime = getDateTime();
   const type = chalk.bold(chalk.cyan('[INFO]'));
-  console.log(`${time}${type}`, ...message);
+  console.log(`${dateTime}${type}`, ...message);
 };
 
 log.error = (...message) => {
-  const time = getTime();
+  const dateTime = getDateTime();
   const type = chalk.bold(chalk.red('[ERROR]'));
-  console.log(`${time}${type}`, ...message);
+  console.log(`${dateTime}${type}`, ...message);
 };
 
 module.exports = log;

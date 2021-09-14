@@ -50,19 +50,16 @@ exports.search = async (param) => {
                 box[b].boxKey = box[b]._id;
                 delete box[b]._id;
             }
-            return ({
-                result: 'ok',
-                type: "box",
-                data: {
-                    box
-                }
-            });
         }else{
-            return ({
-                result: 'fail',
-                data: []
-            });
+            box = [];
         }
+        return ({
+            result: 'ok',
+            type: "box",
+            data: {
+                box
+            }
+        });
     }catch (e) {
         console.log(e);
         return ({

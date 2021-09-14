@@ -103,20 +103,17 @@ exports.findOne = async (param) => {
             project = JSON.parse(JSON.stringify(project));
             project.projectKey = project._id;
             delete project._id;
-            return ({
-                result: 'ok',
-                type: "project",
-                data: {
-                    project
-                }
-            });
-        }else{
-            // return null;
-            return ({
-                result: 'fail',
-                data: {}
-            });
         }
+        else{
+            project = {};
+        }
+        return ({
+            result: 'ok',
+            type: "project",
+            data: {
+                project
+            }
+        });
     }catch (e) {
         console.log(e);
         return ({
