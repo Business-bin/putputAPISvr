@@ -3,6 +3,7 @@ const { Types: { ObjectId } } = require('mongoose');
 const datefomat = require('../../../lib/dateFomat');
 const calcDistance = require('../../../lib/calcDistance');
 const Comment = require('../comment');
+const log = require('../../../lib/log');
 
 exports.register = async (param) => {
     const {
@@ -31,7 +32,7 @@ exports.register = async (param) => {
             }
         });
     } catch (e) {
-        console.log(e);
+        log.error(`egg register => ${e}`);
         return ({
             result: 'fail',
             msg: '알 등록 실패'
@@ -68,7 +69,7 @@ exports.update = async (param) => {
             });
         }
     }catch (e) {
-        console.log(e);
+        log.error(`egg update => ${e}`);
         return ({
             result: 'fail',
             msg: '알 수정 실패'
@@ -91,7 +92,7 @@ showUpdate = async (param) => {
             });
         }
     }catch (e) {
-        console.log(e);
+        log.error(`egg showUpdate => ${e}`);
         return ({
             result: 'fail',
             msg: '알 조회수 수정 실패'
@@ -126,7 +127,7 @@ exports.delete = async (param) => {
             });
         }
     }catch (e) {
-        console.log(e);
+        log.error(`egg delete => ${e}`);
         return ({
             result: 'fail',
             msg: '알 삭제 실패'
@@ -160,7 +161,7 @@ exports.findOne = async (param) => {
             }
         });
     } catch (e) {
-        console.log(e);
+        log.error(`egg findOne => ${e}`);
         return ({
             result: 'fail',
             msg: '알 검색 실패'
@@ -192,7 +193,7 @@ exports.search = async (param) => {
             }
         });
     } catch (e) {
-        console.log(e);
+        log.error(`egg search => ${e}`);
         return ({
             result: 'fail',
             msg: '알 검색 실패'
@@ -222,7 +223,7 @@ exports.aroundSearch = async (param) => {
             }
         });
     }catch (e) {
-        console.log(e);
+        log.error(`egg aroundSearch => ${e}`);
         return ({
             result: 'fail',
             msg: '알 검색 실패'

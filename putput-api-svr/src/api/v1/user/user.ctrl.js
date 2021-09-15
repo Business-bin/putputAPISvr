@@ -1,6 +1,7 @@
 const User = require('../../../db/models/User');
 const crypto = require('../../../lib/CryptoAES');
 const { Types: { ObjectId } } = require('mongoose');
+const log = require('../../../lib/log');
 const jwtMiddleware = require('../../../lib/jwtToken');
 const Project = require('../project');
 const Team = require('../team');
@@ -58,7 +59,7 @@ exports.register = async (param) => {
             }
         });
     } catch (e) {
-        console.log(e);
+        log.error(`user register => ${e}`);
         return ({
             result: 'fail',
             msg: '회원가입 실패'
@@ -86,7 +87,7 @@ exports.findId = async (param) => {
             }
         });
     } catch (e) {
-        console.log(e);
+        log.error(`user findId => ${e}`);
         return ({
             result: 'fail',
             msg: '아이디 찾기 오류'
@@ -113,7 +114,7 @@ exports.findPw = async (param) => {
             }
         });
     } catch (e) {
-        console.log(e);
+        log.error(`user findPw => ${e}`);
         return ({
             result: 'fail',
             msg: '패스워드 찾기 오류'
@@ -147,20 +148,20 @@ exports.login = async (param) => {
             user.userKey = user._id;
             delete user._id;
             // 프로젝트 조회
-            let project = await Project.findOne({_id:user.join_p_key, det_dttm: null});
+            let project = await Project.findOne({_id:user.join_p_key});
             project = project.data.project;
             // 팀 조회
-            let teamList = await Team.search({project_key:user.join_p_key, det_dttm: null});
+            let teamList = await Team.search({project_key:user.join_p_key});
             teamList = teamList.data.team;
             // 박스 조회
-            let boxList = await Box.search({project_key:user.join_p_key, det_dttm: null});
+            let boxList = await Box.search({project_key:user.join_p_key});
             boxList = boxList.data.box;
 
             let token = null;
             try {
-                token = await jwtMiddleware.generateToken(param);
+                token = await jwtMiddleware.generateToken({user_id});
             } catch (e) {
-                console.log(500, e);
+                log.error(`user login generateToken => ${e}`);
                 return ({
                     result: 'fail',
                     msg: '토큰 생성 오류'
@@ -178,7 +179,7 @@ exports.login = async (param) => {
             });
         }
     } catch (e){
-        console.log(e);
+        log.error(`user login => ${e}`);
         return ({
             result: 'fail',
             msg: '로그인 오류'
@@ -201,37 +202,36 @@ exports.logout = async (param) => {
     }
 }
 
-// 회원정보 수정
 exports.patchUpdate = async (param) => {
-    const { id, name , lv, max_p} = param;
-    const fields = {name, lv, max_p};
-    if(!ObjectId.isValid(id) || name === undefined) {
-        return ({
-            result: 'fail',
-            msg: '형식 오류'
-        });
-    }
-    try {
-        const user = await User.findByIdAndUpdate(id, fields, {
-            upsert: false,
-            new: true
-        }).exec();
-
-        return ({
-            result: 'ok',
-            data: {
-                user
-            }
-        });
-    } catch (e) {
-        console.log(e);
-        return ({
-            result: 'fail',
-            msg: '회원정보 수정 오류'
-        });
-    }
+    // delete param._id;
+    // if(!ObjectId.isValid(param._id) || name === undefined) {
+    //     return ({
+    //         result: 'fail',
+    //         msg: '형식 오류'
+    //     });
+    // }
+    // delete param._id;
+    // console.log(`user id 22222 = ${param._id}`)
+    // try {
+    //     const user = await User.findOneAndUpdate(id, {$set:param}, {
+    //         upsert: false,
+    //         returnNewDocument: true,
+    //         new: true
+    //     }).exec();
+    //     return ({
+    //         result: 'ok',
+    //         data: {
+    //             user
+    //         }
+    //     });
+    // } catch (e) {
+    //     console.log(e);
+    //     return ({
+    //         result: 'fail',
+    //         msg: '회원정보 수정 오류'
+    //     });
+    // }
 }
-
 
 exports.test1 = async (param) => {
     const {pw} = param;

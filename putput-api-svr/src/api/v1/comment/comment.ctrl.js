@@ -2,6 +2,7 @@ const Egg = require('../../../db/models/Egg');
 const Comment = require('../../../db/models/Comment');
 const { Types: { ObjectId } } = require('mongoose');
 const datefomat = require('../../../lib/dateFomat');
+const log = require('../../../lib/log');
 
 exports.register = async (param) => {
     const {
@@ -35,7 +36,7 @@ exports.register = async (param) => {
             }
         });
     } catch (e) {
-        console.log(e);
+        log.error(`comment register => ${e}`);
         return ({
             result: 'fail',
             msg: '댓글 등록 실패'
@@ -71,7 +72,7 @@ exports.update = async (param) => {
             });
         }
     }catch (e) {
-        console.log(e);
+        log.error(`comment update => ${e}`);
         return ({
             result: 'fail',
             msg: '댓글 수정 실패'
@@ -110,7 +111,7 @@ exports.delete = async (param) => {
             });
         }
     }catch (e) {
-        console.log(e);
+        log.error(`comment delete => ${e}`);
         return ({
             result: 'fail',
             msg: '댓글 삭제 실패'
@@ -142,7 +143,7 @@ exports.search = async (param) => {
             }
         });
     }catch (e) {
-        console.log(e);
+        log.error(`comment search => ${e}`);
         return ({
             result: 'fail',
             msg: '팀 검색 실패'

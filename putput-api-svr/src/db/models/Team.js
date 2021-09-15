@@ -4,33 +4,19 @@ const datefomat = require('../../lib/dateFomat');
 
 const Team = new Schema({
     project_key: Schema.Types.ObjectId, // 프로젝트 키
+    index: Schema.Types.Number,
     name: String,                       // 팀명
-    join_cnt:  Schema.Types.Number,
+    join_cnt: Schema.Types.Number,
     openbox_cnt: Schema.Types.Number,
     reg_dttm: Date,
-    det_dttm: Date,
-    // join_cnt:  {                        // 누적참여인원
-    //     type: Schema.Types.Number,
-    //     default: 0
-    // },
-    // openbox_cnt:  {                     // 누적획득상자
-    //     type: Schema.Types.Number,
-    //     default: 0
-    // },
-    // reg_dttm: {                         // 생성일시
-    //     type: Date,
-    //     default: datefomat.getCurrentDate()
-    // },
-    // det_dttm: {                         // 삭제일시
-    //     type: Date,
-    //     default: null
-    // }
+    det_dttm: Date
 });
 
 Team.statics.localRegister = async function({
-    project_key, name}) {
+    project_key, index, name}) {
     const team = new this({
         project_key,
+        index,
         name,
         join_cnt:0,
         openbox_cnt:0,

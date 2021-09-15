@@ -44,13 +44,14 @@ exports.jwtMiddleware = async (ctx, next) => {
     try {
         const decoded = await decodeToken(token); // 토큰디코딩
         console.log(`decoded user id = ${decoded.user_id}`);
-        // const deUserId = decoded.user_id
         global.tokenUserId = decoded.user_id;
         // 토큰 만료일이 12시간밖에 안남으면 토큰 재발급
         if(Date.now() / 1000 - decoded.iat > 60 * 60 * 12) {
             // 12시간 지나면 갱신
-            const { _id, profile } = decoded;
-            const freshToken = await generateToken({ _id, profile }, 'account');
+            // const { _id, profile } = decoded;
+            // const freshToken = await generateToken({ _id, profile }, 'account');
+            const { user_id } = decoded;
+            const freshToken = await generateToken({ user_id });
 
             // 쿠키에 설정
             ctx.cookies.set('access_token', freshToken, {

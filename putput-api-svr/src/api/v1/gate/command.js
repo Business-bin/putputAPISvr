@@ -12,18 +12,19 @@ const Token = require('../token');
 
 const cmds = {
     // 유저
-    'req_Join' : User.register, // 회원가입
-    'req_RevealID' : User.findId,  // 아이디 찾기
-    'req_RevealPassword' : User.findPw,  // 패스워드 찾기
-    'req_Login' : User.login,   // 로그인
-    'req_Logout' : User.logout,   // 로그인
+    'req_Join' : User.register,             // 회원가입
+    'req_RevealID' : User.findId,           // 아이디 찾기
+    'req_RevealPassword' : User.findPw,     // 패스워드 찾기
+    'req_Login' : User.login,               // 로그인
+    'req_Logout' : User.logout,             // 로그아웃
     
-    'req_UserUpdate' : User.patchUpdate, // 계정 수정
+    'req_UserUpdate' : User.patchUpdate,    // 계정 수정
     'test1' : User.test1,
     'test2' : User.test2,
 
     // 프로젝트
     'req_ProjectCreate' : Project.register,   // 프로젝트 생성
+    'req_ProjectModify' : Project.update,
     'req_PublicProjectList' : Project.search,
     'req_ProjectFind' : Project.findOne,
 
@@ -93,10 +94,9 @@ exports.cmd = async (ctx) => {
                     log.info(`Client Request ***** ${rep.data.cmd} ***** START`);
                     rep.result = await cmds[rep.data.cmd](rep.data.param);
                 }else{
-                    let tokenUserId;
                     try{
                         log.info(`Client Request ***** ${rep.data.cmd} ***** START`);
-                        tokenUserId = ctx.request.user.user_id; // 토큰값이 없을경우 에러
+                        // 토큰값이 없을경우 에러, 토큰 user id와 post data user id 비교
                         rep.result = tokenUserId != rep.data.user ? {
                                 result: 'fail',
                                 msg: `not login`
