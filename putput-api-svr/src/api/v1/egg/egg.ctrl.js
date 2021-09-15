@@ -204,9 +204,9 @@ exports.aroundSearch = async (param) => {
     try{
         let egg = await Egg.find({
                     location: {
-                        $near:{
-                            $geometry:{type:"Point", coordinates:[Number(param.myLongitude), Number(param.myLatitude)]},
-                            $maxDistance:50
+                        $near:{     // 몽고디비 위치기반 쿼리
+                            $geometry:{type:"Point", coordinates:[Number(param.myLongitude), Number(param.myLatitude)]},    // 경도 / 위도 순
+                            $maxDistance:50 // 50m
                         }
                     }, det_dttm : null
                 }, {_id:true, user_id:true, contents:true, comment_cnt:true, latitude:true, longitude:true}).exec();
@@ -215,6 +215,7 @@ exports.aroundSearch = async (param) => {
             egg[e].egg_key = egg[e]._id;
             delete egg[e]._id;
         }
+        log.info(`egg ${egg.length}건 검색 완료`);
         return ({
             result: 'ok',
             data: {
