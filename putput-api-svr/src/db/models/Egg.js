@@ -11,6 +11,10 @@ const Egg = new Schema({
     comment_cnt: Schema.Types.Number,   // 댓글개수 d 0
     latitude: String,                   // 위도
     longitude: String,                  // 경도
+    location: {
+        type : Schema.Types.Object,
+        index: "2dsphere"
+    },
     reg_dttm: Date,
     det_dttm: Date
 });
@@ -24,11 +28,13 @@ Egg.statics.localRegister = async function({
             emotion,
             latitude,
             longitude,
+            location:{type:"Point", coordinates:[Number(longitude),Number(latitude)]},
             show_cnt : 0,
             comment_cnt : 0,
             reg_dttm : datefomat.getCurrentDate(),
             det_dttm : null
         });
+
         return egg.save();
     };
 

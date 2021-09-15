@@ -24,7 +24,6 @@ exports.register = async (param) => {
             latitude,
             longitude
         });
-
         return ({
             result: 'ok',
             data: {
@@ -202,17 +201,15 @@ exports.search = async (param) => {
 };
 
 exports.aroundSearch = async (param) => {
-    const coordinate = calcDistance.calcDistance1(param.myLatitude, param.myLongitude);
-    console.log("coordinate = ");
-    console.log(coordinate);
     try{
         let egg = await Egg.find({
-            $and : [{latitude:{$gte:coordinate.lLat}}
-                , {longitude:{$gte:coordinate.lLon}}
-                , {latitude:{$lte:coordinate.hLat}}
-                , {longitude:{$lte:coordinate.hLon}}
-                , {det_dttm:null}]
-        }, {_id:true, user_id:true, comment_cnt:true, latitude:true, longitude:true}).exec();
+                    location: {
+                        $near:{
+                            $geometry:{type:"Point", coordinates:[Number(param.myLongitude), Number(param.myLatitude)]},
+                            $maxDistance:50
+                        }
+                    }, det_dttm : null
+                }, {_id:true, user_id:true, contents:true, comment_cnt:true, latitude:true, longitude:true}).exec();
         for(let e in egg){
             egg[e] = JSON.parse(JSON.stringify(egg[e]));
             egg[e].egg_key = egg[e]._id;
