@@ -1,10 +1,14 @@
-// 위치 기준 반지름 약 25m
+// 위치 기준 반지름 약 50m
 exports.calcDistance1 = (lat, lon) => {
     const coordinate = {
-        lLat : (Number(lat)-0.000119155623816)
-        , lLon : (Number(lon)-0.00024005769183)
-        , hLat : (Number(lat)+0.000119155623816)
-        , hLon : (Number(lon)+0.00024005769183)
+        // lLat : (Number(lat)-0.000119155623816)
+        // , lLon : (Number(lon)-0.00024005769183)
+        // , hLat : (Number(lat)+0.000119155623816)
+        // , hLon : (Number(lon)+0.00024005769183)
+        lLat : (Number(lat)-0.000238311247632)      // 0.000119155623816 (25m)
+        , lLon : (Number(lon)-0.00048011538366)     // 0.00024005769183 (25m)
+        , hLat : (Number(lat)+0.000238311247632)    // 0.000119155623816 (25m)
+        , hLon : (Number(lon)+0.00048011538366)     // 0.00024005769183 (25m)
     };
     return coordinate;
 }

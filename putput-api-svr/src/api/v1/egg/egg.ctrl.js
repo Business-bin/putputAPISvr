@@ -203,6 +203,8 @@ exports.search = async (param) => {
 
 exports.aroundSearch = async (param) => {
     const coordinate = calcDistance.calcDistance1(param.myLatitude, param.myLongitude);
+    console.log("coordinate = ");
+    console.log(coordinate);
     try{
         let egg = await Egg.find({
             $and : [{latitude:{$gte:coordinate.lLat}}
