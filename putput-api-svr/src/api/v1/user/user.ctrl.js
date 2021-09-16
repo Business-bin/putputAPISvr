@@ -3,9 +3,9 @@ const crypto = require('../../../lib/CryptoAES');
 const { Types: { ObjectId } } = require('mongoose');
 const log = require('../../../lib/log');
 const jwtMiddleware = require('../../../lib/jwtToken');
-const Project = require('../project');
-const Team = require('../team');
-const Box = require('../box');
+const Project = require('../project/project.ctrl');
+const Team = require('../team/team.ctrl');
+const Box = require('../box/box.ctrl');
 
 // 회원가입
 exports.register = async (param) => {
@@ -202,35 +202,33 @@ exports.logout = async (param) => {
     }
 }
 
-exports.patchUpdate = async (param) => {
-    // delete param._id;
-    // if(!ObjectId.isValid(param._id) || name === undefined) {
-    //     return ({
-    //         result: 'fail',
-    //         msg: '형식 오류'
-    //     });
-    // }
-    // delete param._id;
-    // console.log(`user id 22222 = ${param._id}`)
-    // try {
-    //     const user = await User.findOneAndUpdate(id, {$set:param}, {
-    //         upsert: false,
-    //         returnNewDocument: true,
-    //         new: true
-    //     }).exec();
-    //     return ({
-    //         result: 'ok',
-    //         data: {
-    //             user
-    //         }
-    //     });
-    // } catch (e) {
-    //     console.log(e);
-    //     return ({
-    //         result: 'fail',
-    //         msg: '회원정보 수정 오류'
-    //     });
-    // }
+exports.projectCntUpdate = async (param) => {
+    param.det_dttm = null;
+    if(!ObjectId.isValid(param._id)) {
+        return ({
+            result: 'fail',
+            msg: '형식 오류'
+        });
+    }
+    try{
+        const user = await User.findOneAndUpdate(param, {$inc:{create_p:+1}}, {
+            upsert: false,
+            returnNewDocument: true,
+            new: true
+        }).exec();
+        return ({
+            result: 'ok',
+            data: {
+                user
+            }
+        });
+    }catch (e) {
+        log.error(`project register user => ${e}`);
+        return ({
+            result: 'fail',
+            msg: '수정 실패 user'
+        });
+    }
 }
 
 exports.test1 = async (param) => {

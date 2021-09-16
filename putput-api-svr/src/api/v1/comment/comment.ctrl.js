@@ -1,7 +1,7 @@
-const Egg = require('../../../db/models/Egg');
 const Comment = require('../../../db/models/Comment');
 const { Types: { ObjectId } } = require('mongoose');
 const datefomat = require('../../../lib/dateFomat');
+const Egg = require('../egg/egg.ctrl');
 const log = require('../../../lib/log');
 
 exports.register = async (param) => {
@@ -23,12 +23,14 @@ exports.register = async (param) => {
             commentKey : comment._id
             , date : comment.reg_dttm
         }
-        const egg = await Egg.findOneAndUpdate({_id:egg_key}, {$inc:{comment_cnt:+1}}, {
-            upsert: false,
-            returnNewDocument: true,
-            new: true
-        }).exec();
-
+        const eggParam = {
+            id:egg_key
+            ,cnt:+1 // {$inc:{comment_cnt:+1}}
+        }
+        const egg = await Egg.commentCntUpdate(eggParam);
+        if(egg.result === 'fail'){
+            throw Error("알 댓글 카운트 업데이트 에러");
+        }
         return ({
             result: 'ok',
             data: {
@@ -97,11 +99,16 @@ exports.delete = async (param) => {
             returnNewDocument: true,
             new: true
         }).exec();
-        const egg = await Egg.findOneAndUpdate({_id:comment.egg_key}, {$inc:{comment_cnt:-1}}, {
-            upsert: false,
-            returnNewDocument: true,
-            new: true
-        }).exec();
+
+        const eggParam = {
+            id:comment.egg_key
+            ,cnt:-1
+        }
+        const egg = await Egg.commentCntUpdate(eggParam);
+        if(egg.result === "fail"){
+            throw Error("알 댓글 카운트 업데이트 에러");
+        }
+
         if(comment){
             return ({
                 result: 'ok',

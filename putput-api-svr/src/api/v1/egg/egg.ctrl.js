@@ -1,8 +1,7 @@
 const Egg = require('../../../db/models/Egg');
 const { Types: { ObjectId } } = require('mongoose');
 const datefomat = require('../../../lib/dateFomat');
-const calcDistance = require('../../../lib/calcDistance');
-const Comment = require('../comment');
+const Comment = require('../comment/comment.ctrl');
 const log = require('../../../lib/log');
 
 exports.register = async (param) => {
@@ -99,6 +98,28 @@ showUpdate = async (param) => {
     }
 }
 
+exports.commentCntUpdate = async (param) => {
+    const matchQ = {_id : param.id, det_dttm:null};
+    try{
+        const egg = await Egg.findOneAndUpdate(matchQ, {$inc:{comment_cnt:param.cnt}}, {
+            upsert: false,
+            returnNewDocument: true,
+            new: true
+        }).exec();
+        return ({
+            result: 'ok',
+            data: {
+                egg
+            }
+        });
+    }catch (e) {
+        log.error(`egg commentCntUpdate => ${e}`);
+        return ({
+            result: 'fail',
+            msg: '알 수정 실패'
+        });
+    }
+}
 exports.delete = async (param) => {
     const matchQ = {_id : param.egg_key, user_id : param.user_id, det_dttm:null};
     const fields = {

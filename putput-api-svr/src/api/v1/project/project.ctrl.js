@@ -1,7 +1,7 @@
 const Project = require('../../../db/models/Project');
-const User = require('../../../db/models/User');
-const Team = require('../team');
-const Box = require('../box');
+const User = require('../user/user.ctrl');
+const Team = require('../team/team.ctrl');
+const Box = require('../box/box.ctrl');
 const log = require('../../../lib/log');
 const { Types: { ObjectId } } = require('mongoose');
 
@@ -28,11 +28,12 @@ exports.register = async (param) => {
         let teamList = [];
         try {
             for(let t in team_names){
-                const result = await Team.register({project_key:project._id,index:t, name:team_names[t].name});
-                if(result.result === 'fail') {
+                const team = await Team.register({project_key:project._id,index:t, name:team_names[t].name});
+                if(team.result === 'fail') {
                     throw new Error('팀 등록 에러');
                 }
-                teamList.push({teamKey:result._id,index:result.index, name:result.name});
+                const data = team.data.team;
+                teamList.push({teamKey:data._id, index:data.index, name:data.name});
             }
         } catch (e) {
             log.error(`project register team => ${e}`);
@@ -42,12 +43,10 @@ exports.register = async (param) => {
             });
         }
         try{
-            // require('../user'); 가 안됨... 크로스 안되는 듯??
-            const user = await User.findOneAndUpdate({_id:user_key, det_dttm:null}, {$inc:{create_p:+1}}, {
-                        upsert: false,
-                        returnNewDocument: true,
-                        new: true
-                    }).exec();
+            const user = await User.projectCntUpdate({_id:user_key});
+            if(user.result === 'fail'){
+                throw Error("유저 create_p 업데이트 에러");
+            }
         }catch (e) {
             log.error(`project register user => ${e}`);
             return ({
