@@ -11,6 +11,7 @@ module.exports = (function () {
 
   return {
     connect () {
+      mongoose.set('debug', true);
       // return mongoose.connect(mongoURI, { useMongoClient: true }).then(
       return mongoose.connect(mongoURI).then(
         () => {
