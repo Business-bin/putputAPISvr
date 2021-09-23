@@ -42,14 +42,14 @@ const User = new Schema({
 });
 
 User.statics.localRegister = async function({
-    user_id, user_pw, name, email, phone, nick }) {
+    user_id, user_pw, name, email, phone }) {
     const user = new this({
         user_id,
         user_pw,
         name,
         email,
         phone,
-        nick
+        nick : ""
     });
     return user.save();
 }

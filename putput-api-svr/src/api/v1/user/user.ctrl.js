@@ -14,8 +14,8 @@ exports.register = async (param) => {
         user_pw,
         name,
         email,
-        phone,
-        nick
+        phone
+        // nick
     } = param;
     user_pw = crypto.encryptAES(user_pw);
 
@@ -49,8 +49,8 @@ exports.register = async (param) => {
             user_pw,
             name,
             email,
-            phone,
-            nick
+            phone
+            // nick
         });
         return ({
             result: 'ok',
