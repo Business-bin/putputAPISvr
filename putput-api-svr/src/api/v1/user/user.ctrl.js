@@ -202,7 +202,7 @@ exports.logout = async (param) => {
     }
 }
 
-exports.projectCntUpdate = async (param) => {
+exports.projectCntUpdate = async (param, cnt) => {
     param.det_dttm = null;
     if(!ObjectId.isValid(param._id)) {
         return ({
@@ -211,7 +211,7 @@ exports.projectCntUpdate = async (param) => {
         });
     }
     try{
-        const user = await User.findOneAndUpdate(param, {$inc:{create_p:+1}}, {
+        const user = await User.findOneAndUpdate(param, {$inc:{create_p:+cnt}}, {
             upsert: false,
             returnNewDocument: true,
             new: true

@@ -164,7 +164,7 @@ exports.findOne = async (param) => {
         ).exec();
         if(egg) {
             // 조회수 업데이트
-            showUpdate({_id : param.egg_key, del_dttm: null});
+            showUpdate({_id : param.egg_key, det_dttm: null});
             egg = JSON.parse(JSON.stringify(egg));
             egg.egg_key = egg._id;
             egg.date = egg.reg_dttm;

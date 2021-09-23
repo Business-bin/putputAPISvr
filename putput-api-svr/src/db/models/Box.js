@@ -4,32 +4,35 @@ const datefomat = require('../../lib/dateFomat');
 
 const Box = new Schema({
     project_key: Schema.Types.ObjectId,     // 프로젝트 키
-    mission_key:  {                         // 미션 키
-        type: Schema.Types.ObjectId,
-        default: null
-    },
-    reward_key:  {                          // 보상 키
-        type: Schema.Types.ObjectId,
-        default: null
-    },
+    mission_key: {
+        type : Schema.Types.ObjectId,
+        default : null
+    },                                      // 미션 키
+    reward_key: {
+        type : Schema.Types.ObjectId,
+        default : null
+    },                                      // 보상 키
+    get_limit: String,                      // 미션성공횟수제한
     latitude: String,                       // 위도
     longitude: String,                      // 경도
-    get_limit: Schema.Types.Number,         // 미션성공횟수제한
-    reg_dttm: {                             // 생성일시
-        type: Date,
-        default: datefomat.getCurrentDate()
+    location: {
+        type : Schema.Types.Object,
+        index: "2dsphere"
     },
-    det_dttm: {                             // 삭제일시
-        type: Date,
-        default: null
-    }
+    reg_dttm: Date,
+    det_dttm: Date
 });
 
 Box.statics.localRegister = async function({
-    project_key, mission_key, reward_key, latitude, longitude, get_limit}) {
+    project_key, get_limit, latitude, longitude}) {
     const box = new this({
-        project_key,
-        name
+        project_key
+        ,get_limit
+        ,latitude
+        ,longitude
+        ,location:{type:"Point", coordinates:[Number(longitude),Number(latitude)]}
+        ,reg_dttm:datefomat.getCurrentDate()
+        ,det_dttm:null
     });
     return box.save();
 }

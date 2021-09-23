@@ -1,37 +1,97 @@
 const Box = require('../../../db/models/Box');
 const log = require('../../../lib/log');
+const datefomat = require('../../../lib/dateFomat');
 const { Types: { ObjectId } } = require('mongoose');
 
-
-exports.update = async (param) => {
-    param.det_dttm = null;
-    console.log("param == ");
-    console.log(param);
+exports.register = async (param) => {
+    console.log('박스생성')
+    console.log(param)
     const {
-        _id
-        , mission_key
+        project_key,
+        get_limit,
+        latitude,
+        longitude
+    } = param;
+
+    try {
+        const box = await Box.localRegister({
+            project_key,
+            get_limit,
+            latitude,
+            longitude
+        });
+        return ({
+            result: 'ok',
+            data: {
+                box
+            }
+        });
+    } catch (e) {
+        log.error(`box register => ${e}`);
+        return ({
+            result: 'fail',
+            msg: '박스 등록 실패'
+        });
+    }
+};
+exports.update = async (param) => {
+
+    const matchQ = {_id : param.boxKey, det_dttm:null};
+    const {
+        mission_key
         , reward_key
         , get_limit
         , latitude
         , longitude
-    } = param;
+    } = param
     try{
-        // const box = await Box.findOneAndUpdate(matchQ, {$set:fields}, {
-        //     upsert: true,
-        //     returnNewDocument: true, // 결과 반환
-        //     new: true
-        // }).exec();
+        const box = await Box.findOneAndUpdate(matchQ, {
+            mission_key
+            , reward_key
+            , get_limit
+            , latitude
+            , longitude
+            , location:{type:"Point", coordinates:[Number(param.longitude),Number(param.latitude)]}
+            }, {
+            upsert: true,
+            returnNewDocument: true, // 결과 반환
+            new: true
+        }).exec();
         return ({
             result: 'ok',
             data: {
-                // box
+                box
             }
         });
     }catch (e) {
-        log.error(`box update => ${e}`);
+        log.error('box update => ');
+        console.log(e)
         return ({
             result: 'fail',
             msg: '박스 수정 실패'
+        });
+    }
+}
+
+exports.delete = async (param) => {
+    try{
+        const box = await Box.findOneAndUpdate(param, {$set:{det_dttm:datefomat.getCurrentDate()}}, {
+            upsert: true,
+            returnNewDocument: true, // 결과 반환
+            new: true
+        }).exec();
+        return ({
+            result: 'ok',
+            data: {
+                box
+            }
+        });
+    }catch (e) {
+        log.error('box delete => ');
+        console.log(e)
+        return ({
+            result: 'fail',
+            msg: '박스 삭제 실패'
         });
     }
 }

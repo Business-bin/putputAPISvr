@@ -3,12 +3,14 @@ const User = require('../user/user.ctrl');
 const Team = require('../team/team.ctrl');
 const Box = require('../box/box.ctrl');
 const log = require('../../../lib/log');
+const datefomat = require('../../../lib/dateFomat');
 const { Types: { ObjectId } } = require('mongoose');
 
 
 exports.register = async (param) => {
     const {
         user_key,
+        user_id,
         title,
         join_code,
         teams,
@@ -18,6 +20,7 @@ exports.register = async (param) => {
     try {
         let project = await Project.localRegister({
             user_key,
+            user_id,
             title,
             join_code,
             teams,
@@ -28,7 +31,7 @@ exports.register = async (param) => {
         let teamList = [];
         try {
             for(let t in team_names){
-                const team = await Team.register({project_key:project._id,index:t, name:team_names[t].name});
+                const team = await Team.register({project_key:project._id,index:team_names[t].index, name:team_names[t].name});
                 if(team.result === 'fail') {
                     throw new Error('팀 등록 에러');
                 }
@@ -43,7 +46,7 @@ exports.register = async (param) => {
             });
         }
         try{
-            const user = await User.projectCntUpdate({_id:user_key});
+            const user = await User.projectCntUpdate({_id:user_key}, 1);
             if(user.result === 'fail'){
                 throw Error("유저 create_p 업데이트 에러");
             }
@@ -80,10 +83,10 @@ exports.register = async (param) => {
 
 exports.update = async (param) => {
     const {
-        porjectKey
+        project_key
         , boxlist
     } = param;
-    if(!ObjectId.isValid(porjectKey)) {
+    if(!ObjectId.isValid(project_key)) {
         console.log("11111")
         return ({
             result: 'fail',
@@ -91,29 +94,41 @@ exports.update = async (param) => {
         });
     }
     try {
-        let data = {porjectKey:porjectKey};
-        console.log(data)
-        /*const project = await Project.findOneAndUpdate({_id:porjectKey}, {$set:param}, {
-            upsert: false,
-            returnNewDocument: true, // 결과 반환
-            new: true
-        }).exec();*/
-        let boxresult = []
+        // 박스 생성/수정/삭제
+        let boxCnt = 0;
         for(let b in boxlist){
-            boxlist[b]._id = boxlist[b].boxKey;
-            delete boxlist[b].boxKey;
-            const box = await Box.update(boxlist[b]);
-            console.log(box.result);
-            if(box.result === 'fail'){
-                throw Error('box upsert error')
+            let box;
+            switch (boxlist[b].modifystate){
+                case "insert" :
+                    log.info('생성')
+                    boxCnt++;
+                    boxlist[b].project_key = project_key;
+                    box = await Box.register(boxlist[b]);
+                    break
+                case "update" :
+                    log.info('수정')
+                    box = await Box.update(boxlist[b]);
+                    break
+                case "delete" :
+                    boxCnt--
+                    log.info('삭제')
+                    box = await Box.delete({_id:boxlist[b].boxKey});
+                    break
             }
-            boxresult.push(box);
+            console.log(box)
+            if(box.result === 'fail')
+                throw Error("박스 생성 에러");
         }
-        data.boxlist = boxresult;
+        // 프로젝트 박스카운트
+        if(boxCnt != 0){
+            await Project.findOneAndUpdate({_id:project_key},{$inc:{box_cnt:+boxCnt}});
+        }
+        const teamList = await Team.search({project_key:project_key});
         return ({
             result: 'ok',
             data: {
-                data
+                project_key
+                ,teamList
             }
         });
     } catch (e) {
@@ -124,6 +139,38 @@ exports.update = async (param) => {
         });
     }
 
+}
+
+exports.delete = async (param) => {
+    const matchQ = {_id : param.projectKey, user_key : param.user_key}
+    try{
+        console.log("1111111")
+        const project = await Project.findOneAndUpdate(matchQ, {$set:{det_dttm:datefomat.getCurrentDate()}}, {
+            upsert: true,
+            returnNewDocument: true, // 결과 반환
+            new: true
+        }).exec();
+        console.log("2222222222")
+        const user = await User.projectCntUpdate({_id:param.user_key}, -1);
+        if(user.result === 'fail')
+            throw Error("유저 create_p 업데이트 에러");
+        const box = await Box.delete({project_key:param.projectKey});
+        if(box.result === 'fail')
+            throw Error("박스 삭제 에러");
+        return ({
+            result: 'ok',
+            data: {
+                project
+            }
+        });
+    }catch (e) {
+        log.error('project delete => ');
+        console.log(e)
+        return ({
+            result: 'fail',
+            msg: '프로젝트 삭제 실패'
+        });
+    }
 }
 
 exports.findOne = async (param) => {

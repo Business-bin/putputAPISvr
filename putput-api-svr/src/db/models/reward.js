@@ -13,7 +13,7 @@ const Reward = new Schema({
         type: Date,
         default: datefomat.getCurrentDate()
     },
-    del_dttm: {
+    det_dttm: {
         type: Date,
         default: null
     }
