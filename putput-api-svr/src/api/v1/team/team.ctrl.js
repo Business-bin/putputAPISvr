@@ -42,7 +42,7 @@ exports.search = async (param) => {
         if(team){
             team = JSON.parse(JSON.stringify(team));
             for(let t in team){
-                team[t].teamKey = team[t]._id;
+                team[t].team_key = team[t]._id;
                 delete team[t]._id;
             }
         }

@@ -45,7 +45,7 @@ const cmds = {
     'req_Delete': Egg.delete,
     'req_EggInfo': Egg.findOne,
     'req_EggInfoList': Egg.search,
-    'req_AroundEggList': Egg.aroundSearch,
+    'req_AroundEggList': Egg.aroundSearch,  // 알 위치정보(내 기준 50m)
 
     // 댓글
     'req_CommentWriting': Comment.register,

@@ -131,7 +131,7 @@ exports.login = async (param) => {
             await User.findOne(
                 param,
                 {"_id":true, "user_id":true, "user_pw":true, "email":true, "max_p":true
-                    , "create_p":true, "join_p_key":true, "join_p_teamKey":true}
+                    , "create_p":true, "join_p_key":true, "join_p_jointeamkey":true}
             ).exec();
         if(!user) {
             return ({
@@ -145,7 +145,7 @@ exports.login = async (param) => {
             });
         }else{
             user = JSON.parse(JSON.stringify(user));
-            user.userKey = user._id;
+            user.user_key = user._id;
             delete user._id;
             // 프로젝트 조회
             let project = await Project.findOne({_id:user.join_p_key});

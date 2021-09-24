@@ -185,7 +185,7 @@ exports.findOne = async (param) => {
             ).exec();
         if(project){
             project = JSON.parse(JSON.stringify(project));
-            project.projectKey = project._id;
+            project.project_key = project._id;
             delete project._id;
         }
         else{

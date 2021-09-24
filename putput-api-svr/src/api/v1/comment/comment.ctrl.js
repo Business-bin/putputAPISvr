@@ -20,7 +20,7 @@ exports.register = async (param) => {
             emotion
         });
         comment = {
-            commentKey : comment._id
+            comment_key : comment._id
             , date : comment.reg_dttm
         }
         const eggParam = {
@@ -47,7 +47,7 @@ exports.register = async (param) => {
 };
 
 exports.update = async (param) => {
-    const matchQ = {_id : param.commentKey, det_dttm:null};
+    const matchQ = {_id : param.comment_key, det_dttm:null};
     const fields = {
         ac_comment : param.ac_comment
         , emotion : param.emotion
@@ -83,7 +83,7 @@ exports.update = async (param) => {
 }
 
 exports.delete = async (param) => {
-    const matchQ = {_id : param.commentKey, user_id : param.user_id, det_dttm:null};
+    const matchQ = {_id : param.comment_key, user_id : param.user_id, det_dttm:null};
     const fields = {
         det_dttm : datefomat.getCurrentDate()
     }
@@ -136,7 +136,7 @@ exports.search = async (param) => {
         if(comment != '' && comment != undefined && comment != null){
             comment = JSON.parse(JSON.stringify(comment));
             for(let c in comment){
-                comment[c].commentKey = comment[c]._id;
+                comment[c].comment_key = comment[c]._id;
                 comment[c].date = comment[c].reg_dttm;
                 delete comment[c]._id;
                 delete comment[c].reg_dttm;

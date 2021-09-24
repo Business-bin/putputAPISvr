@@ -146,7 +146,7 @@ exports.search = async (param) => {
         if(box){
             box = JSON.parse(JSON.stringify(box));
             for(let b in box){
-                box[b].boxKey = box[b]._id;
+                box[b].box_key = box[b]._id;
                 delete box[b]._id;
             }
         }

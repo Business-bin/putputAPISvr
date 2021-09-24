@@ -7,7 +7,7 @@ const User = new Schema({
         type: Schema.Types.ObjectId,    // 프로젝트키(참가중인)
         default: null
     },
-    join_p_teamKey: {                   // 프로젝트 내 참가한 팀 키
+    join_p_jointeamkey: {                   // 프로젝트 내 참가한 팀 키
         type: Schema.Types.ObjectId,
         default: null
     },

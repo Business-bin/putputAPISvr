@@ -8,7 +8,7 @@ exports.register = async (param) => {
     const {
         user_id,
         contents,
-        pic_URL,
+        pic_url,
         emotion,
         latitude,
         longitude
@@ -18,7 +18,7 @@ exports.register = async (param) => {
         const egg = await Egg.localRegister({
             user_id,
             contents,
-            pic_URL,
+            pic_url,
             emotion,
             latitude,
             longitude
@@ -42,7 +42,7 @@ exports.update = async (param) => {
     const matchQ = {_id : param.egg_key, det_dttm:null};
     const fields = {
         contents : param.contents
-        , pic_URL : param.pic_URL
+        , pic_url : param.pic_url
         , emotion : param.emotion
     }
     try{
@@ -159,7 +159,7 @@ exports.findOne = async (param) => {
     try {
         let egg = await Egg.findOne(
             {_id : param.egg_key}
-            ,{"_id":true, "user_id":true, "contents":true, "pic_URL":true, "emotion":true
+            ,{"_id":true, "user_id":true, "contents":true, "pic_url":true, "emotion":true
             , "reg_dttm":true}
         ).exec();
         if(egg) {
@@ -193,7 +193,7 @@ exports.search = async (param) => {
     try {
         let egg = await Egg.find(
             param
-            ,{"_id":true, "user_id":true, "contents":true, "pic_URL":true, "emotion":true
+            ,{"_id":true, "user_id":true, "contents":true, "pic_url":true, "emotion":true
                 , "reg_dttm":true}
         ).exec();
 
@@ -226,7 +226,7 @@ exports.aroundSearch = async (param) => {
         let egg = await Egg.find({
                     location: {
                         $near:{     // 몽고디비 위치기반 쿼리
-                            $geometry:{type:"Point", coordinates:[Number(param.myLongitude), Number(param.myLatitude)]},    // 경도 / 위도 순
+                            $geometry:{type:"Point", coordinates:[Number(param.longitude), Number(param.latitude)]},    // 경도 / 위도 순
                             $maxDistance:50 // 50m
                         }
                     }, det_dttm : null
