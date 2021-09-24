@@ -4,6 +4,7 @@ const Project = require('../project');
 const Box = require('../box');
 const Team = require('../team');
 const Mission = require('../mission');
+const Reward = require('../reward');
 const Egg = require('../egg');
 const Comment = require('../comment');
 
@@ -42,6 +43,11 @@ const cmds = {
     'req_MissionModify' : Mission.update,
     'req_MissionDelete' : Mission.delete,
 
+    // 보상
+    'req_RewardCreate' : Reward.register,
+    'req_RewardModify' : Reward.update,
+    'req_RewardDelete' : Reward.delete,
+
     // 알&상자 검색 테스트
     'FeedSearch' : Feed.search,
 
@@ -56,7 +62,7 @@ const cmds = {
     // 댓글
     'req_CommentWriting': Comment.register,
     'req_CommentModify': Comment.update,
-    'req_CommentDeleete': Comment.delete,
+    'req_CommentDelete': Comment.delete,
 
     // token test
     'TokenTest': Token.tokenTest,

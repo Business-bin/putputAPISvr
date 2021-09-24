@@ -1,4 +1,4 @@
-const Mission = require('../../../db/models/Mission');
+const Reward = require('../../../db/models/Reward');
 const { Types: { ObjectId } } = require('mongoose');
 const datefomat = require('../../../lib/dateFomat');
 const log = require('../../../lib/log');
@@ -6,47 +6,37 @@ const log = require('../../../lib/log');
 exports.register = async (param) => {
     const {
         user_key,
-        question,
-        ex1,
-        ex2,
-        ex3,
-        ex4,
-        solution,
-        exposition
+        contents,
+        img_url
     } = param;
 
     try {
-        let mission = await Mission.localRegister({
+        let reward = await Reward.localRegister({
             user_key,
-            question,
-            ex1,
-            ex2,
-            ex3,
-            ex4,
-            solution,
-            exposition
+            contents,
+            img_url
         });
-        mission = JSON.parse(JSON.stringify(mission));
-        mission.mission_key = mission._id;
-        delete mission._id;
+        reward = JSON.parse(JSON.stringify(reward));
+        reward.reward_key = reward._id;
+        delete reward._id;
         return ({
             result: 'ok',
             data: {
-                mission
+                reward
             }
         });
     } catch (e) {
-        log.error(`mission register => ${e}`);
+        log.error(`reward register => ${e}`);
         return ({
             result: 'fail',
-            msg: '문제 등록 실패'
+            msg: '보상 등록 실패'
         });
     }
 };
 
 exports.update = async (param) => {
-    const matchQ = {_id : param.mission_key, det_dttm:null};
-    delete param.mission_key;
+    const matchQ = {_id : param.reward_key, det_dttm:null};
+    delete param.reward_key;
     try{
         if (!ObjectId.isValid(matchQ._id) || param === undefined) {
             return ({
@@ -54,7 +44,7 @@ exports.update = async (param) => {
                 msg: '형식 오류'
             });
         }
-        const mission = await Mission.findOneAndUpdate(matchQ, {$set:param}, {
+        const reward = await Reward.findOneAndUpdate(matchQ, {$set:param}, {
             upsert: false,
             returnNewDocument: true,
             new: true
@@ -62,20 +52,20 @@ exports.update = async (param) => {
         return ({
             result: 'ok',
             data: {
-                mission // 리턴값 삭제예정
+                reward // 리턴값 삭제예정
             }
         });
     }catch (e) {
-        log.error(`mission update => ${e}`);
+        log.error(`reward update => ${e}`);
         return ({
             result: 'fail',
-            msg: '문제 수정 실패'
+            msg: '보상 수정 실패'
         });
     }
 }
 //
 exports.delete = async (param) => {
-    const matchQ = {_id : param.mission_key, user_key : param.user_key, det_dttm:null};
+    const matchQ = {_id : param.reward_key, user_key : param.user_key, det_dttm:null};
     const fields = {
         det_dttm : datefomat.getCurrentDate()
     }
@@ -86,7 +76,7 @@ exports.delete = async (param) => {
                 msg: '형식 오류'
             });
         }
-        const mission = await Mission.findOneAndUpdate(matchQ, {$set:fields}, {
+        const reward = await Reward.findOneAndUpdate(matchQ, {$set:fields}, {
             upsert: false,
             returnNewDocument: true,
             new: true
@@ -94,14 +84,14 @@ exports.delete = async (param) => {
         return ({
             result: 'ok',
             data: {
-                mission // 리턴값 삭제예정
+                reward // 리턴값 삭제예정
             }
         });
     }catch (e) {
-        log.error(`mission delete => ${e}`);
+        log.error(`reward delete => ${e}`);
         return ({
             result: 'fail',
-            msg: '문제 삭제 실패'
+            msg: '보상 삭제 실패'
         });
     }
 }
