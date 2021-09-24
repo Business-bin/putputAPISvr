@@ -100,13 +100,17 @@ exports.update = async (param) => {
             let box;
             switch (boxlist[b].modifystate){
                 case "insert" :
-                    log.info('생성')
+                    log.info('박스 생성')
+                    boxlist[b].mission_key = boxlist[b].mission_key == "" ? null : boxlist[b].mission_key;
+                    boxlist[b].reward_key = boxlist[b].reward_key == "" ? null : boxlist[b].reward_key;
                     boxCnt++;
                     boxlist[b].project_key = project_key;
                     box = await Box.register(boxlist[b]);
                     break
                 case "update" :
-                    log.info('수정')
+                    log.info('박스 수정')
+                    boxlist[b].mission_key = boxlist[b].mission_key == "" ? null : boxlist[b].mission_key;
+                    boxlist[b].reward_key = boxlist[b].reward_key == "" ? null : boxlist[b].reward_key;
                     box = await Box.update(boxlist[b]);
                     break
                 case "delete" :
@@ -115,9 +119,8 @@ exports.update = async (param) => {
                     box = await Box.delete({_id:boxlist[b].boxKey});
                     break
             }
-            console.log(box)
             if(box.result === 'fail')
-                throw Error("박스 생성 에러");
+                throw Error("boxlist 에러");
         }
         // 프로젝트 박스카운트
         if(boxCnt != 0){
@@ -144,13 +147,11 @@ exports.update = async (param) => {
 exports.delete = async (param) => {
     const matchQ = {_id : param.projectKey, user_key : param.user_key}
     try{
-        console.log("1111111")
         const project = await Project.findOneAndUpdate(matchQ, {$set:{det_dttm:datefomat.getCurrentDate()}}, {
             upsert: true,
             returnNewDocument: true, // 결과 반환
             new: true
         }).exec();
-        console.log("2222222222")
         const user = await User.projectCntUpdate({_id:param.user_key}, -1);
         if(user.result === 'fail')
             throw Error("유저 create_p 업데이트 에러");

@@ -8,6 +8,8 @@ exports.register = async (param) => {
     console.log(param)
     const {
         project_key,
+        mission_key,
+        reward_key,
         get_limit,
         latitude,
         longitude
@@ -16,6 +18,8 @@ exports.register = async (param) => {
     try {
         const box = await Box.localRegister({
             project_key,
+            mission_key,
+            reward_key,
             get_limit,
             latitude,
             longitude

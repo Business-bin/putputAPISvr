@@ -4,14 +4,8 @@ const datefomat = require('../../lib/dateFomat');
 
 const Box = new Schema({
     project_key: Schema.Types.ObjectId,     // 프로젝트 키
-    mission_key: {
-        type : Schema.Types.ObjectId,
-        default : null
-    },                                      // 미션 키
-    reward_key: {
-        type : Schema.Types.ObjectId,
-        default : null
-    },                                      // 보상 키
+    mission_key: Schema.Types.ObjectId,     // 미션 키
+    reward_key: Schema.Types.ObjectId,      // 보상 키
     get_limit: String,                      // 미션성공횟수제한
     latitude: String,                       // 위도
     longitude: String,                      // 경도
@@ -24,9 +18,11 @@ const Box = new Schema({
 });
 
 Box.statics.localRegister = async function({
-    project_key, get_limit, latitude, longitude}) {
+    project_key, mission_key, reward_key, get_limit, latitude, longitude}) {
     const box = new this({
         project_key
+        ,mission_key
+        ,reward_key
         ,get_limit
         ,latitude
         ,longitude
