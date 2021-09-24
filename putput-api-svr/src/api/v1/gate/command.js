@@ -3,6 +3,7 @@ const User = require('../user');
 const Project = require('../project');
 const Box = require('../box');
 const Team = require('../team');
+const Mission = require('../mission');
 const Egg = require('../egg');
 const Comment = require('../comment');
 
@@ -35,6 +36,11 @@ const cmds = {
 
     // 팀
     'reg_TeamSearch' : Team.search,
+
+    // 문제
+    'req_MissionCreate' : Mission.register,
+    'req_MissionModify' : Mission.update,
+    'req_MissionDelete' : Mission.delete,
 
     // 알&상자 검색 테스트
     'FeedSearch' : Feed.search,
