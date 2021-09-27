@@ -172,7 +172,7 @@ exports.findOne = async (param) => {
             delete egg.reg_dttm;
             // 댓글 검색
             let commentList = await Comment.search({egg_key:param.egg_key, det_dttm: null});
-            egg.comment = commentList.data.comment;
+            egg.comment = commentList.data.comment.length == 0 ? [] : commentSort(commentList);
         }
         return ({
             result: 'ok',
@@ -204,7 +204,7 @@ exports.search = async (param) => {
             egg[e].date = egg[e].reg_dttm;
             delete egg[e]._id;
             delete egg[e].reg_dttm;
-            egg[e].comment = commentList.data.comment;
+            egg[e].comment = commentList.data.comment.length == 0 ? [] : commentSort(commentList);
         }
         return ({
             result: 'ok',
@@ -252,3 +252,19 @@ exports.aroundSearch = async (param) => {
     }
 }
 
+commentSort = (commentList) => {
+    if(commentList.data.comment.length < 4)
+        return commentList.data.comment;
+    commentList.data.comment.sort((d1, d2) => {
+        return new Date(d2.date) - new Date(d1.date)
+    })
+    let commentSort = [];
+    const constLength = commentList.data.comment.length;
+    for(let i=1; i<=3; i++){
+        commentSort.push(commentList.data.comment[constLength-i]);
+    }
+    for(let i=0; i<constLength-3; i++){
+        commentSort.push(commentList.data.comment[i]);
+    }
+    return commentSort;
+}
