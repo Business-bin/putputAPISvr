@@ -36,7 +36,7 @@ exports.register = async (param) => {
                     throw new Error('팀 등록 에러');
                 }
                 const data = team.data.team;
-                teamList.push({teamKey:data._id, index:data.index, name:data.name});
+                teamList.push({team_key:data._id, index:data.index, name:data.name});
             }
         } catch (e) {
             log.error(`project register team => ${e}`);
@@ -58,7 +58,7 @@ exports.register = async (param) => {
             });
         }
         project = {
-            projectKey: project._id
+            project_key: project._id
             , user_key: project.user_key
             , title: project.title
             , join_code: project.join_code
@@ -145,7 +145,7 @@ exports.update = async (param) => {
 }
 
 exports.delete = async (param) => {
-    const matchQ = {_id : param.projectKey, user_key : param.user_key}
+    const matchQ = {_id : param.project_key, user_key : param.user_key}
     try{
         const project = await Project.findOneAndUpdate(matchQ, {$set:{det_dttm:datefomat.getCurrentDate()}}, {
             upsert: true,
@@ -155,9 +155,12 @@ exports.delete = async (param) => {
         const user = await User.projectCntUpdate({_id:param.user_key}, -1);
         if(user.result === 'fail')
             throw Error("유저 create_p 업데이트 에러");
-        const box = await Box.delete({project_key:param.projectKey});
+        const box = await Box.delete({project_key:param.project_key});
         if(box.result === 'fail')
             throw Error("박스 삭제 에러");
+        const team = await Team.delete({project_key:param.project_key});
+        if(team.result === 'fail')
+            throw Error("팀 삭제 에러");
         return ({
             result: 'ok',
             data: {
@@ -225,7 +228,7 @@ exports.search = async (param) => {
             boxList = boxList.data.box;
 
             project[p] = JSON.parse(JSON.stringify(project[p]));
-            project[p].projectKey = project[p]._id;
+            project[p].project_key = project[p]._id;
             delete project[p]._id;
             project[p].teamList = teamList;
             project[p].boxList = boxList;

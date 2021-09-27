@@ -40,7 +40,7 @@ exports.register = async (param) => {
 };
 exports.update = async (param) => {
 
-    const matchQ = {_id : param.boxKey, det_dttm:null};
+    const matchQ = {_id : param.box_key, det_dttm:null};
     const {
         mission_key
         , reward_key
@@ -79,9 +79,9 @@ exports.update = async (param) => {
 
 exports.delete = async (param) => {
     try{
-        const box = await Box.findOneAndUpdate(param, {$set:{det_dttm:datefomat.getCurrentDate()}}, {
-            upsert: true,
-            returnNewDocument: true, // 결과 반환
+        const box = await Box.update(param, {$set:{det_dttm:datefomat.getCurrentDate()}}, {
+            upsert: false,
+            multi: true,
             new: true
         }).exec();
         return ({

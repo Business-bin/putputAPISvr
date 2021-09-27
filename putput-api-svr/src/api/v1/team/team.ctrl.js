@@ -1,5 +1,6 @@
 const Team = require('../../../db/models/Team');
 const log = require('../../../lib/log');
+const datefomat = require('../../../lib/dateFomat');
 
 exports.register = async (param) => {
     const {
@@ -29,6 +30,34 @@ exports.register = async (param) => {
         });
     }
 };
+
+exports.delete = async (param) => {
+    param.det_dttm = null;
+    console.log(param)
+    const fields = {
+        det_dttm : datefomat.getCurrentDate()
+    }
+    try{
+        const team = await Team.update(param, {$set:fields}, {  // findAndModify
+            upsert: false,
+            multi: true,
+            new: true
+        }).exec();
+        console.log(team)
+        return ({
+            result: 'ok',
+            data: {
+                team // 리턴값 삭제예정
+            }
+        });
+    }catch (e) {
+        log.error(`team delete => ${e}`);
+        return ({
+            result: 'fail',
+            msg: '팀 삭제 실패'
+        });
+    }
+}
 
 exports.search = async (param) => {
     console.log(param)
