@@ -340,7 +340,7 @@ exports.joinProject = async (param) => {
     }
 }
 
-exports.req_exitProject = async (param) => {
+exports.exitProject = async (param) => {
     const {
         user_key
     } = param;
@@ -353,10 +353,43 @@ exports.req_exitProject = async (param) => {
             }
         });
     }catch (e) {
-        log.error(`req_exitProject => ${e}`);
+        log.error(`exitProject => ${e}`);
         return ({
             result: 'fail',
             msg: '프로젝트 나가기 실패'
+        });
+    }
+}
+
+exports.updateState = async (param) => {
+    const {
+        project_key
+        ,state
+    } = param;
+    const chkState = {play:'play', stop:'stop'};
+    try{
+        if(!ObjectId.isValid(project_key) || (state in chkState) == false) {
+            return ({
+                result: 'fail',
+                msg: '형식 오류'
+            });
+        }
+        const project = await Project.findOneAndUpdate({_id:project_key, det_dttm:null}, {$set:{state}}, {
+            upsert: false,
+            returnNewDocument: true,
+            new: true
+        }).exec();
+        return ({
+            result: 'ok',
+            data: {
+                project
+            }
+        });
+    }catch (e) {
+        log.error(`updateState => ${e}`);
+        return ({
+            result: 'fail',
+            msg: '프로젝트 상태변경 실패'
         });
     }
 }

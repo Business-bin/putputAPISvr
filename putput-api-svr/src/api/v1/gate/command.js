@@ -31,7 +31,8 @@ const cmds = {
     'req_PublicProjectList' : Project.search,
     'req_ProjectFind' : Project.findOne,
     'req_JoinProject' : Project.joinProject,        // 프로젝트 참가
-    'req_ExitProject' : Project.req_exitProject,    // 프로젝트 나가기
+    'req_ExitProject' : Project.exitProject,        // 프로젝트 나가기
+    'req_ProjectChangeState' : Project.updateState, // 프로젝트 상태 변경
 
     // 상자
     'reg_BoxFind' : Box.findOne,
