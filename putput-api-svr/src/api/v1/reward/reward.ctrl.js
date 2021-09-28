@@ -95,3 +95,30 @@ exports.delete = async (param) => {
         });
     }
 }
+
+exports.findOne = async (param) => {
+    try {
+        let reward =
+            await Reward.findOne(
+                param,
+                {"_id":true, "contents":true, "img_url":true}
+            ).exec();
+        if(reward){
+            reward = JSON.parse(JSON.stringify(reward));
+            reward.reward_key = reward._id;
+            delete reward._id;
+        }
+        return ({
+            result: 'ok',
+            data: {
+                reward
+            }
+        });
+    }catch (e) {
+        log.error(`reward findOne => ${e}`);
+        return ({
+            result: 'fail',
+            msg: '보상 검색 실패'
+        });
+    }
+}

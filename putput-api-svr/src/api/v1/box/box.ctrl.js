@@ -1,4 +1,6 @@
 const Box = require('../../../db/models/Box');
+const Mission = require('../mission/mission.ctrl');
+const Reward = require('../reward/reward.ctrl');
 const log = require('../../../lib/log');
 const datefomat = require('../../../lib/dateFomat');
 const { Types: { ObjectId } } = require('mongoose');
@@ -37,7 +39,6 @@ exports.register = async (param) => {
     }
 };
 exports.update = async (param) => {
-
     const matchQ = {_id : param.box_key, det_dttm:null};
     const {
         mission_key
@@ -47,6 +48,12 @@ exports.update = async (param) => {
         , longitude
     } = param
     try{
+        if (!ObjectId.isValid(matchQ._id) || param === undefined) {
+            return ({
+                result: 'fail',
+                msg: '형식 오류'
+            });
+        }
         const box = await Box.findOneAndUpdate(matchQ, {
             mission_key
             , reward_key
@@ -163,3 +170,35 @@ exports.search = async (param) => {
     }
 }
 
+exports.missionRewardFindOne = async (param) => {
+    try {
+        const box = await Box.findOne(
+                {_id : param.box_key, det_dttm : null}
+                ,{"_id":true, "mission_key":true, "reward_key":true}
+            ).exec();
+        if(!box){
+            return ({
+                result: 'ok'
+                ,data: null
+                ,msg: '키에대한 박스 없음'
+            });
+        }
+        let mission = await Mission.findOne({_id:box.mission_key, det_dttm:null});
+        mission = mission.data.mission;
+        let reward = await Reward.findOne({_id:box.reward_key, det_dttm:null});
+        reward = reward.data.reward;
+        return ({
+            result: 'ok'
+            ,data: {
+                mission
+                ,reward
+            }
+        });
+    }catch (e) {
+        log.error(`box missionRewardFindOne => ${e}`);
+        return ({
+            result: 'fail',
+            msg: '미션&보상 검색 실패'
+        });
+    }
+}

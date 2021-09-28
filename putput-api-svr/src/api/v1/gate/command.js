@@ -20,7 +20,7 @@ const cmds = {
     'req_Login' : User.login,               // 로그인
     'req_Logout' : User.logout,             // 로그아웃
     
-    'req_UserUpdate' : User.patchUpdate,    // 계정 수정
+    // 'req_UserUpdate' : User.patchUpdate,    // 계정 수정
     'test1' : User.test1,
     'test2' : User.test2,
 
@@ -37,6 +37,9 @@ const cmds = {
 
     // 팀
     'reg_TeamSearch' : Team.search,
+
+    // 박스
+    'req_MissionRewardInfo' : Box.missionRewardFindOne, // 미션&보상 정보
 
     // 문제
     'req_MissionCreate' : Mission.register,

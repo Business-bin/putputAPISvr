@@ -105,3 +105,31 @@ exports.delete = async (param) => {
         });
     }
 }
+
+exports.findOne = async (param) => {
+    try {
+        let mission =
+            await Mission.findOne(
+                param,
+                {"_id":true, "question":true, "ex1":true, "ex2":true, "ex3":true, "ex4":true
+                    , "solution":true, "exposition":true}
+            ).exec();
+        if(mission){
+            mission = JSON.parse(JSON.stringify(mission));
+            mission.mission_key = mission._id;
+            delete mission._id;
+        }
+        return ({
+            result: 'ok',
+            data: {
+                mission
+            }
+        });
+    }catch (e) {
+        log.error(`mission findOne => ${e}`);
+        return ({
+            result: 'fail',
+            msg: '문제 검색 실패'
+        });
+    }
+}
