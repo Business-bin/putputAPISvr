@@ -4,6 +4,7 @@ const Team = require('../team/team.ctrl');
 const Box = require('../box/box.ctrl');
 const log = require('../../../lib/log');
 const datefomat = require('../../../lib/dateFomat');
+const fail = require('../../../lib/fail');
 const { Types: { ObjectId } } = require('mongoose');
 
 
@@ -29,33 +30,26 @@ exports.register = async (param) => {
         });
         const team_names = param.team_name;
         let teamList = [];
-        try {
-            for(let t in team_names){
-                const team = await Team.register({project_key:project._id,index:team_names[t].index, name:team_names[t].name});
-                if(team.result === 'fail') {
-                    throw new Error('팀 등록 에러');
-                }
-                const data = team.data.team;
-                teamList.push({team_key:data._id, index:data.index, name:data.name});
+        for(let t in team_names){
+            const team = await Team.register({project_key:project._id,index:team_names[t].index, name:team_names[t].name});
+            if(team.result === 'fail') {
+                await fail.deleteProcessiong([
+                    {failOb:"PROJECT", field:{_id:project._id}}
+                    ,{failOb:"TEAM", field:{project_key:project._id}}
+                ]);
+                throw new Error('팀 등록 에러');
             }
-        } catch (e) {
-            log.error(`project register team => ${e}`);
-            return ({
-                result: 'fail',
-                msg: '팀 등록 실패 team'
-            });
+            const data = team.data.team;
+            teamList.push({team_key:data._id, index:data.index, name:data.name});
         }
-        try{
-            const user = await User.projectCntUpdate({_id:user_key}, 1);
-            if(user.result === 'fail'){
-                throw Error("유저 create_p 업데이트 에러");
-            }
-        }catch (e) {
-            log.error(`project register user => ${e}`);
-            return ({
-                result: 'fail',
-                msg: '수정 실패 user'
-            });
+
+        const user = await User.projectCntUpdate({_id:user_key}, 1);
+        if(user.result === 'fail'){
+            await fail.deleteProcessiong([
+                {failOb:"PROJECT", field:{_id:project._id}}
+                ,{failOb:"TEAM", field:{project_key:project._id}}
+            ]);
+            throw Error("유저 create_p 업데이트 에러");
         }
         project = {
             project_key: project._id
@@ -73,7 +67,8 @@ exports.register = async (param) => {
             }
         });
     } catch (e) {
-        log.error(`project register => ${e}`);
+        log.error(`project register =>`);
+        console.log(e);
         return ({
             result: 'fail',
             msg: '프로젝트 등록 실패'
@@ -87,7 +82,6 @@ exports.update = async (param) => {
         , boxlist
     } = param;
     if(!ObjectId.isValid(project_key)) {
-        console.log("11111")
         return ({
             result: 'fail',
             msg: '형식 오류'
@@ -96,6 +90,9 @@ exports.update = async (param) => {
     try {
         // 박스 생성/수정/삭제
         let boxCnt = 0;
+        let boxInHistoryArr = [];
+        let boxUpHistoryArr = [];
+        let boxDeHistoryArr = [];
         for(let b in boxlist){
             let box;
             switch (boxlist[b].modifystate){
@@ -106,21 +103,38 @@ exports.update = async (param) => {
                     boxCnt++;
                     boxlist[b].project_key = project_key;
                     box = await Box.register(boxlist[b]);
+                    boxInHistoryArr.push({_id : box.data.box._id});
                     break
                 case "update" :
                     log.info('박스 수정')
+                    boxUpHistoryArr.push(await Box.findOne({_id:boxlist[b].box_key}));
                     boxlist[b].mission_key = boxlist[b].mission_key == "" ? null : boxlist[b].mission_key;
                     boxlist[b].reward_key = boxlist[b].reward_key == "" ? null : boxlist[b].reward_key;
                     box = await Box.update(boxlist[b]);
                     break
                 case "delete" :
                     boxCnt--
-                    log.info('삭제')
-                    box = await Box.delete({_id:boxlist[b].boxKey});
+                    log.info('삭제');
+                    boxDeHistoryArr.push({_id:boxlist[b].box_key});
+                    box = await Box.delete({_id:boxlist[b].box_key});
                     break
             }
-            if(box.result === 'fail')
+            if(box.result === 'fail'){
+                for(let i in boxInHistoryArr){
+                    await fail.deleteProcessiong([{failOb:"BOX", field:boxInHistoryArr[i]}]);
+                }
+                for(let u in boxUpHistoryArr){
+                    await fail.updateProcessiong([
+                        {failOb:"BOX", matchQ:{_id:boxUpHistoryArr[u].data.box.box_key}, field:boxUpHistoryArr[u].data.box}
+                    ]);
+                }
+                for(let d in boxDeHistoryArr){
+                    await fail.updateProcessiong([
+                        {failOb:"BOX", matchQ:boxDeHistoryArr[d], field: {det_dttm:null}}
+                    ]);
+                }
                 throw Error("boxlist 에러");
+            }
         }
         // 프로젝트 박스카운트
         if(boxCnt != 0){
@@ -146,21 +160,33 @@ exports.update = async (param) => {
 
 exports.delete = async (param) => {
     const matchQ = {_id : param.project_key, user_key : param.user_key}
+    if(!ObjectId.isValid(param.project_key)) {
+        return ({
+            result: 'fail',
+            msg: '형식 오류'
+        });
+    }
     try{
         const project = await Project.findOneAndUpdate(matchQ, {$set:{det_dttm:datefomat.getCurrentDate()}}, {
-            upsert: true,
+            upsert: false,
             returnNewDocument: true, // 결과 반환
             new: true
         }).exec();
         const user = await User.projectCntUpdate({_id:param.user_key}, -1);
-        if(user.result === 'fail')
+        if(user.result === 'fail') {
+            await projectDelFail("USER", param);
             throw Error("유저 create_p 업데이트 에러");
+        }
         const box = await Box.delete({project_key:param.project_key});
-        if(box.result === 'fail')
+        if(box.result === 'fail'){
+            await projectDelFail("BOX", param);
             throw Error("박스 삭제 에러");
+        }
         const team = await Team.delete({project_key:param.project_key});
-        if(team.result === 'fail')
+        if(team.result === 'fail'){
+            await projectDelFail("TEAM", param);
             throw Error("팀 삭제 에러");
+        }
         return ({
             result: 'ok',
             data: {
@@ -249,3 +275,21 @@ exports.search = async (param) => {
     }
 };
 
+projectDelFail = async (ob, param) => {
+    if(ob === "USER"){
+        await fail.updateProcessiong([
+            {failOb:"PROJECT", matchQ: {_id : param.project_key, user_key : param.user_key}, field: {$set:{det_dttm:null}}}
+        ]);
+    }else if(ob === "BOX") {
+        await fail.updateProcessiong([
+            {failOb:"PROJECT", matchQ: matchQ, field: {$set:{det_dttm:null}}}
+            ,{failOb:"USER", matchQ: {_id:param.user_key}, field: {$inc:{create_p:+1}}}
+        ]);
+    }else if(ob === "TEAM") {
+        await fail.updateProcessiong([
+            {failOb:"PROJECT", matchQ: {_id : param.project_key, user_key : param.user_key}, field: {$set:{det_dttm:null}}}
+            ,{failOb:"USER", matchQ: {_id:param.user_key}, field: {$inc:{create_p:+1}}}
+            ,{failOb:"BOX", matchQ: {project_key:param.project_key}, field: {$set:{det_dttm:null}}}
+        ]);
+    }
+}

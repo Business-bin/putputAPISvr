@@ -74,29 +74,6 @@ exports.update = async (param) => {
         });
     }
 }
-showUpdate = async (param) => {
-    try{
-        const egg = await Egg.findOneAndUpdate(param, {$inc:{show_cnt:+1}}, {
-            upsert: false,
-            returnNewDocument: true, // 결과 반환
-            new: true
-        }).exec();
-        if(egg){
-            return ({
-                result: 'ok',
-                data: {
-                    egg
-                }
-            });
-        }
-    }catch (e) {
-        log.error(`egg showUpdate => ${e}`);
-        return ({
-            result: 'fail',
-            msg: '알 조회수 수정 실패'
-        });
-    }
-}
 
 exports.commentCntUpdate = async (param) => {
     const matchQ = {_id : param.id, det_dttm:null};
@@ -164,7 +141,11 @@ exports.findOne = async (param) => {
         ).exec();
         if(egg) {
             // 조회수 업데이트
-            showUpdate({_id : param.egg_key, det_dttm: null});
+            await Egg.findOneAndUpdate({_id : param.egg_key}, {$inc:{show_cnt:+1}}, {
+                upsert: false,
+                returnNewDocument: true, // 결과 반환
+                new: true
+            }).exec();
             egg = JSON.parse(JSON.stringify(egg));
             egg.egg_key = egg._id;
             egg.date = egg.reg_dttm;

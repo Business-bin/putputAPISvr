@@ -60,7 +60,6 @@ exports.delete = async (param) => {
 }
 
 exports.search = async (param) => {
-    console.log(param)
     try {
         param.det_dttm = null;
         let team =

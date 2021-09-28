@@ -4,8 +4,6 @@ const datefomat = require('../../../lib/dateFomat');
 const { Types: { ObjectId } } = require('mongoose');
 
 exports.register = async (param) => {
-    console.log('박스생성')
-    console.log(param)
     const {
         project_key,
         mission_key,
@@ -110,7 +108,7 @@ exports.findOne = async (param) => {
             ).exec();
         if(box){
             box = JSON.parse(JSON.stringify(box));
-            box.boxKey = box._id;
+            box.box_key = box._id;
             delete box._id;
             return ({
                 result: 'ok',

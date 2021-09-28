@@ -3,6 +3,7 @@ const { Types: { ObjectId } } = require('mongoose');
 const datefomat = require('../../../lib/dateFomat');
 const Egg = require('../egg/egg.ctrl');
 const log = require('../../../lib/log');
+const fail = require('../../../lib/fail');
 
 exports.register = async (param) => {
     const {
@@ -29,6 +30,7 @@ exports.register = async (param) => {
         }
         const egg = await Egg.commentCntUpdate(eggParam);
         if(egg.result === 'fail'){
+            await fail.deleteProcessiong([{failOb:"COMMENT", field:{_id:comment.comment_key}}]);
             throw Error("알 댓글 카운트 업데이트 에러");
         }
         return ({
@@ -106,6 +108,7 @@ exports.delete = async (param) => {
         }
         const egg = await Egg.commentCntUpdate(eggParam);
         if(egg.result === "fail"){
+            await fail.updateProcessiong([{failOb:"COMMENT", matchQ:{_id:matchQ._id}, field:{det_dttm:null}}]);
             throw Error("알 댓글 카운트 업데이트 에러");
         }
 
