@@ -6,8 +6,8 @@ const Team = new Schema({
     project_key: Schema.Types.ObjectId, // 프로젝트 키
     index: Schema.Types.Number,
     name: String,                       // 팀명
-    join_cnt: Schema.Types.Number,
-    openbox_cnt: Schema.Types.Number,
+    join_cnt: Schema.Types.Number,      // 누적참여인원
+    openbox_cnt: Schema.Types.Number,   // 누적획득상자
     reg_dttm: Date,
     det_dttm: Date
 });

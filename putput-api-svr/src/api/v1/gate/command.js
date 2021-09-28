@@ -25,11 +25,13 @@ const cmds = {
     'test2' : User.test2,
 
     // 프로젝트
-    'req_ProjectCreate' : Project.register,     // 프로젝트 생성
-    'req_ProjectModify' : Project.update,       // 프로젝트 수정(박스 생성/수정/삭제)
+    'req_ProjectCreate' : Project.register,         // 프로젝트 생성
+    'req_ProjectModify' : Project.update,           // 프로젝트 수정(박스 생성/수정/삭제)
     'req_ProjectDelete' : Project.delete,
     'req_PublicProjectList' : Project.search,
     'req_ProjectFind' : Project.findOne,
+    'req_JoinProject' : Project.joinProject,        // 프로젝트 참가
+    'req_ExitProject' : Project.req_exitProject,    // 프로젝트 나가기
 
     // 상자
     'reg_BoxFind' : Box.findOne,
@@ -163,6 +165,7 @@ exports.cmd = async (ctx) => {
             });
         }
     }
-    log.info(`Client Request ***** ${rep.data.cmd} ***** END`);
+    log.info(`Client Request ***** ${rep.data.cmd} ***** END
+    `);
     ctx.body = rep.body;
 };

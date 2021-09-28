@@ -122,6 +122,24 @@ exports.findPw = async (param) => {
     }
 };
 
+exports.findOne = async (param) => {
+    try {
+        let user = await User.findOne(param).exec();
+        return ({
+            result: 'ok',
+            data: {
+                user
+            }
+        });
+    }catch (e) {
+        log.error(`user findOne => ${e}`);
+        return ({
+            result: 'fail',
+            msg: '유저 검색 실패'
+        });
+    }
+}
+
 // 로그인
 exports.login = async (param) => {
     const { user_id, user_pw } = param
@@ -198,6 +216,36 @@ exports.logout = async (param) => {
         return ({
             result: 'fail',
             msg: '로그아웃 실패'
+        });
+    }
+}
+
+exports.update = async (param) => {
+    const matchQ = {_id : param.user_key, det_dttm:null};
+    delete param.user_key;
+    try{
+        if (!ObjectId.isValid(matchQ._id) || param === undefined) {
+            return ({
+                result: 'fail',
+                msg: '형식 오류'
+            });
+        }
+        const user = await User.findOneAndUpdate(matchQ, {$set:param}, {
+            upsert: false,
+            returnNewDocument: true,
+            new: true
+        }).exec();
+        return ({
+            result: 'ok',
+            data: {
+                user
+            }
+        });
+    }catch (e) {
+        log.error(`user update => ${e}`);
+        return ({
+            result: 'fail',
+            msg: '유저 수정 실패'
         });
     }
 }

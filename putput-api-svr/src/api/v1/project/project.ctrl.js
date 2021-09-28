@@ -275,6 +275,92 @@ exports.search = async (param) => {
     }
 };
 
+exports.joinProject = async (param) => {
+    const{
+        user_key
+        ,project_key
+        ,team_key
+        ,join_code
+    } = param
+    try {
+        // 참여중이 프로젝트 체크
+        const userChk = await User.findOne({_id:user_key, det_dttm:null});
+        if(userChk.data.user.join_p_key){
+            return ({
+                result: 'fail',
+                msg: '참가중인 프로젝트 있음'
+            });
+        }
+        // 참여코드 확인
+        let project = await Project.findOne(
+                {_id:project_key, det_dttm:null},
+                {"_id":true, "user_key":true, "title":true, "join_code":true
+                    , "teams":true, "state":true, "box_cnt":true}
+            ).exec();
+        if(project.join_code != '' && project.join_code != join_code){
+            return ({
+                result: 'fail',
+                msg: '참여코드 확인 바랍니다.'
+            });
+        }
+        // 유저 정보 업데이트
+        const user = await User.update({user_key, join_p_key:project_key, join_p_jointeamkey:team_key});
+        if(user.result === 'fail')
+            throw Error("유저 참여 프로젝트 정보 업데이트 에러");
+        // 팀 누적참여인원 업데이트
+        const teamUpdate = await Team.updateJoinCnt({team_key});
+        if(teamUpdate.result === 'fail'){
+            await fail.updateProcessiong([
+                {failOb:"USER", matchQ:{_id:user_key}, field: {join_p_key:userChk.data.user.join_p_key, join_p_jointeamkey:userChk.data.user.join_p_jointeamkey}}
+            ]);
+            throw Error("팀 누적참여인원 업데이트 에러");
+        }
+        project = JSON.parse(JSON.stringify(project));
+        project.project_key = project._id;
+        delete project._id;
+        let teamList = await Team.search({project_key});
+        teamList = teamList.data.team;
+        // 박스 조회
+        let boxList = await Box.search({project_key});
+        boxList = boxList.data.box;
+        return ({
+            result: 'ok',
+            data: {
+                project
+                ,teamList
+                ,boxList
+            }
+        });
+    }catch (e) {
+        log.error(`joinProject => ${e}`);
+        return ({
+            result: 'fail',
+            msg: '프로젝트 참가 실패'
+        });
+    }
+}
+
+exports.req_exitProject = async (param) => {
+    const {
+        user_key
+    } = param;
+    try{
+        const user = await User.update({user_key, join_p_key:null, join_p_jointeamkey:null});
+        return ({
+            result: 'ok',
+            data: {
+                user
+            }
+        });
+    }catch (e) {
+        log.error(`req_exitProject => ${e}`);
+        return ({
+            result: 'fail',
+            msg: '프로젝트 나가기 실패'
+        });
+    }
+}
+
 projectDelFail = async (ob, param) => {
     if(ob === "USER"){
         await fail.updateProcessiong([
