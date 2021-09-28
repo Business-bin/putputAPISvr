@@ -122,3 +122,33 @@ exports.findOne = async (param) => {
         });
     }
 }
+
+exports.search = async (param) => {
+    try {
+        param.det_dttm = null;
+        let reward =
+            await Reward.find(
+                param,
+                {"_id":true, "contents":true, "img_url":true}
+            ).exec();
+        if(reward){
+            reward = JSON.parse(JSON.stringify(reward));
+            for(let r in reward){
+                reward[r].reward_key = reward[r]._id;
+                delete reward[r]._id;
+            }
+        }
+        return ({
+            result: 'ok',
+            data: {
+                reward
+            }
+        });
+    }catch (e) {
+        log.error(`reward search => ${e}`);
+        return ({
+            result: 'fail',
+            msg: '보상 검색 실패'
+        });
+    }
+}

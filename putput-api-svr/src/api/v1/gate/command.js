@@ -45,11 +45,13 @@ const cmds = {
     'req_MissionCreate' : Mission.register,
     'req_MissionModify' : Mission.update,
     'req_MissionDelete' : Mission.delete,
+    'req_MissionList' : Mission.search,
 
     // 보상
     'req_RewardCreate' : Reward.register,
     'req_RewardModify' : Reward.update,
     'req_RewardDelete' : Reward.delete,
+    'req_RewardList' : Reward.search,
 
     // 알&상자 검색 테스트
     'FeedSearch' : Feed.search,
