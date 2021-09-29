@@ -29,7 +29,7 @@ exports.register = async (param) => {
             box_cnt
         });
         const team_names = param.team_name;
-        let teamList = [];
+        let teamlist = [];
         for(let t in team_names){
             const team = await Team.register({project_key:project._id,index:team_names[t].index, name:team_names[t].name});
             if(team.result === 'fail') {
@@ -40,7 +40,7 @@ exports.register = async (param) => {
                 throw new Error('팀 등록 에러');
             }
             const data = team.data.team;
-            teamList.push({team_key:data._id, index:data.index, name:data.name});
+            teamlist.push({team_key:data._id, index:data.index, name:data.name});
         }
 
         const user = await User.projectCntUpdate({_id:user_key}, 1);
@@ -58,7 +58,7 @@ exports.register = async (param) => {
             , join_code: project.join_code
             , state: project.state
             , box_cnt: project.box_cnt
-            , team_name: teamList
+            , team_name: teamlist
         }
         return ({
             result: 'ok',
@@ -77,6 +77,7 @@ exports.register = async (param) => {
 };
 
 exports.update = async (param) => {
+    console.log("111")
     const {
         project_key
         , boxlist
@@ -140,12 +141,12 @@ exports.update = async (param) => {
         if(boxCnt != 0){
             await Project.findOneAndUpdate({_id:project_key},{$inc:{box_cnt:+boxCnt}});
         }
-        const teamList = await Team.search({project_key:project_key});
+        const teamlist = await Team.search({project_key:project_key});
         return ({
             result: 'ok',
             data: {
                 project_key
-                ,teamList
+                ,teamlist
             }
         });
     } catch (e) {
@@ -247,17 +248,17 @@ exports.search = async (param) => {
 
         for(let p in project){
             // 팀 조회
-            let teamList = await Team.search({project_key:project[p]._id});
-            teamList = teamList.data.team;
+            let teamlist = await Team.search({project_key:project[p]._id});
+            teamlist = teamlist.data.team;
             // 박스 조회
-            let boxList = await Box.search({project_key:project[p]._id});
-            boxList = boxList.data.box;
+            let boxlist = await Box.search({project_key:project[p]._id});
+            boxlist = boxlist.data.box;
 
             project[p] = JSON.parse(JSON.stringify(project[p]));
             project[p].project_key = project[p]._id;
             delete project[p]._id;
-            project[p].teamList = teamList;
-            project[p].boxList = boxList;
+            project[p].teamlist = teamlist;
+            project[p].boxlist = boxlist;
         }
 
         return ({
@@ -318,17 +319,17 @@ exports.joinProject = async (param) => {
         project = JSON.parse(JSON.stringify(project));
         project.project_key = project._id;
         delete project._id;
-        let teamList = await Team.search({project_key});
-        teamList = teamList.data.team;
+        let teamlist = await Team.search({project_key});
+        teamlist = teamlist.data.team;
         // 박스 조회
-        let boxList = await Box.search({project_key});
-        boxList = boxList.data.box;
+        let boxlist = await Box.search({project_key});
+        boxlist = boxlist.data.box;
         return ({
             result: 'ok',
             data: {
                 project
-                ,teamList
-                ,boxList
+                ,teamlist
+                ,boxlist
             }
         });
     }catch (e) {

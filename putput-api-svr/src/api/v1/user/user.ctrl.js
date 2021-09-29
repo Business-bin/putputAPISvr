@@ -17,6 +17,12 @@ exports.register = async (param) => {
         phone
         // nick
     } = param;
+    if(!user_id || !user_pw || !name || !email || !phone){
+        return ({
+            result: 'fail',
+            msg: '빈 값'
+        });
+    }
     user_pw = crypto.encryptAES(user_pw);
 
     try {
@@ -25,7 +31,7 @@ exports.register = async (param) => {
         if (idCheck) {
             return ({
                 result: 'fail',
-                overlapID: '아이디 중복'
+                msg: '아이디 중복'
             });
         }
         // 이메일 중복 확인
@@ -33,7 +39,7 @@ exports.register = async (param) => {
         if (emailCheck) {
             return ({
                 result: 'fail',
-                overlapEMail: 'EMail 중복'
+                msg: 'EMail 중복'
             });
         }
         // 핸드폰번호 중복 확인
@@ -41,7 +47,7 @@ exports.register = async (param) => {
         if (phoneCheck) {
             return ({
                 result: 'fail',
-                overlapPhone: '핸드폰번호 중복'
+                msg: '핸드폰번호 중복'
             });
         }
         const user = await User.localRegister({
@@ -52,11 +58,35 @@ exports.register = async (param) => {
             phone
             // nick
         });
+        const account = {
+            user_key : user._id
+            ,user_id : user.user_id
+            ,user_pw : user.user_pw
+            ,email : user.email
+            ,max_p : user.max_p
+            ,create_p : user.create_p
+            ,join_p_key : user.join_p_key
+            ,join_p_jointeamkey : user.join_p_jointeamkey
+        }
+        let token = null;
+        try {
+            token = await jwtMiddleware.generateToken({user_id});
+        } catch (e) {
+            log.error(`user login generateToken => ${e}`);
+            return ({
+                result: 'fail',
+                msg: '토큰 생성 오류'
+            });
+        }
         return ({
             result: 'ok',
             data: {
-                account: {user}
-            }
+                account
+                ,project : {}
+                ,teamlist : []
+                ,boxlist : []
+            },
+            token : token
         });
     } catch (e) {
         log.error(`user register => ${e}`);
@@ -169,11 +199,11 @@ exports.login = async (param) => {
             let project = await Project.findOne({_id:user.join_p_key});
             project = project.data.project;
             // 팀 조회
-            let teamList = await Team.search({project_key:user.join_p_key});
-            teamList = teamList.data.team;
+            let teamlist = await Team.search({project_key:user.join_p_key});
+            teamlist = teamlist.data.team;
             // 박스 조회
-            let boxList = await Box.search({project_key:user.join_p_key});
-            boxList = boxList.data.box;
+            let boxlist = await Box.search({project_key:user.join_p_key});
+            boxlist = boxlist.data.box;
 
             let token = null;
             try {
@@ -190,8 +220,8 @@ exports.login = async (param) => {
                 data: {
                     account: user,
                     project,
-                    teamList,
-                    boxList
+                    teamlist,
+                    boxlist
                 },
                 token : token
             });

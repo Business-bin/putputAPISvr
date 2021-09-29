@@ -1,6 +1,8 @@
 const Box = require('../../../db/models/Box');
 const Mission = require('../mission/mission.ctrl');
 const Reward = require('../reward/reward.ctrl');
+const Team = require('../team/team.ctrl');
+const fail = require('../../../lib/fail');
 const log = require('../../../lib/log');
 const datefomat = require('../../../lib/dateFomat');
 const { Types: { ObjectId } } = require('mongoose');
@@ -199,6 +201,58 @@ exports.missionRewardFindOne = async (param) => {
         return ({
             result: 'fail',
             msg: '미션&보상 검색 실패'
+        });
+    }
+}
+
+exports.correctAnswer = async (param) => {
+    const {
+        project_key
+        ,team_key
+        ,box_key
+    } = param;
+    let get_reward = false;
+    try {
+        if (!ObjectId.isValid(project_key)
+            || !ObjectId.isValid(team_key)
+            || !ObjectId.isValid(box_key)) {
+            return ({
+                result: 'fail',
+                msg: '형식 오류'
+            });
+        }
+        const box = await Box.findOne({_id : box_key, det_dttm : null}).exec();
+        if(box.get_limit > box.get_cnt || box.get_limit === 0) {
+            get_reward = true;
+            await Box.findOneAndUpdate({_id : box_key, det_dttm : null}, {$inc:{get_cnt:+1}}, {
+                upsert: false,
+                returnNewDocument: true,
+                new: true
+            }).exec();
+            // 팀 누적 획득 상자 +1
+            const teamUpdate = await Team.update({team_key, $inc:{openbox_cnt:+1}});
+            console.log(teamUpdate.data.team)
+            if(teamUpdate.result === 'fail'){
+                await fail.updateProcessiong([
+                    {failOb:"BOX", matchQ:{_id:box_key}, field:{$inc:{get_cnt:-1}}}
+                ]);
+                throw Error("팀 상자 카운트 수정 오류");
+            }
+        }
+        const team = await Team.search({project_key});
+        return ({
+            result: 'ok'
+            ,data: {
+                project_key
+                ,get_reward
+                ,teamlist : team.data.team
+            }
+        });
+    }catch (e) {
+        log.error(`correctAnswer => ${e}`);
+        return ({
+            result: 'fail',
+            msg: '정답 처리 실패'
         });
     }
 }

@@ -37,12 +37,11 @@ const cmds = {
     // 상자
     'reg_BoxFind' : Box.findOne,
     'reg_BoxSearch' : Box.search,
+    'req_MissionRewardInfo' : Box.missionRewardFindOne, // 미션&보상 정보
+    'req_CorrectAnswer' : Box.correctAnswer,            // 미션 성공
 
     // 팀
     'reg_TeamSearch' : Team.search,
-
-    // 박스
-    'req_MissionRewardInfo' : Box.missionRewardFindOne, // 미션&보상 정보
 
     // 문제
     'req_MissionCreate' : Mission.register,
@@ -152,10 +151,7 @@ exports.cmd = async (ctx) => {
             console.log(e);
         }
     }
-    // console.log(rep.result)
-    // console.log(rep.result.result);
-    if(rep.data.cmd === "req_Login"){
-        // console.log("token = "+rep.result.token);
+    if(rep.data.cmd in {req_Login:'req_Login', req_Join:'req_Join'}){
         ctx.cookies.set('access_token', rep.result.token, { httpOnly: true, maxAge: 1000 * 60 * 60 * 24  });
         delete rep.result.token;
     }else if(rep.data.cmd === "req_Logout"){

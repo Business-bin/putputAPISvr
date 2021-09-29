@@ -32,6 +32,36 @@ exports.register = async (param) => {
     }
 };
 
+exports.update = async (param) => {
+    const matchQ = {_id : param.team_key, det_dttm:null};
+    delete param.team_key;
+    try{
+        if (!ObjectId.isValid(matchQ._id) || param === undefined) {
+            return ({
+                result: 'fail',
+                msg: '형식 오류'
+            });
+        }
+        const team = await Team.findOneAndUpdate(matchQ, param, {
+            upsert: false,
+            returnNewDocument: true,
+            new: true
+        }).exec();
+        return ({
+            result: 'ok',
+            data: {
+                team // 리턴값 삭제예정
+            }
+        });
+    }catch (e) {
+        log.error(`team update => ${e}`);
+        return ({
+            result: 'fail',
+            msg: '팀 수정 실패'
+        });
+    }
+}
+
 exports.updateJoinCnt = async (param) => {
     const matchQ = {_id : param.team_key, det_dttm:null};
     delete param.team_key;
