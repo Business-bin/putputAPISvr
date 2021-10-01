@@ -24,7 +24,8 @@ exports.register = async (param) => {
             }
         });
     } catch (e) {
-        log.error(`team register => ${e}`);
+        log.error('team register => ');
+        console.log(e);
         return ({
             result: 'fail',
             msg: '팀 등록 실패'
@@ -54,7 +55,8 @@ exports.update = async (param) => {
             }
         });
     }catch (e) {
-        log.error(`team update => ${e}`);
+        log.error('team update => ');
+        console.log(e)
         return ({
             result: 'fail',
             msg: '팀 수정 실패'
@@ -78,7 +80,8 @@ exports.updateJoinCnt = async (param) => {
             }
         });
     }catch (e) {
-        log.error(`team updateJoinCnt => ${e}`);
+        log.error('team updateJoinCnt => ');
+        console.log(e)
         return ({
             result: 'fail',
             msg: '팀 누적 참여인원 수정 실패'
@@ -106,7 +109,8 @@ exports.delete = async (param) => {
             }
         });
     }catch (e) {
-        log.error(`team delete => ${e}`);
+        log.error('team delete => ');
+        console.log(e)
         return ({
             result: 'fail',
             msg: '팀 삭제 실패'
@@ -133,7 +137,8 @@ exports.findOne = async (param) => {
             }
         });
     }catch (e) {
-        log.error(`team findOne => ${e}`);
+        log.error('team findOne => ');
+        console.log(e)
         return ({
             result: 'fail',
             msg: '팀 검색 실패'
@@ -164,7 +169,8 @@ exports.search = async (param) => {
             }
         });
     }catch (e) {
-        log.error(`team search => ${e}`);
+        log.error('team search => ');
+        console.log(e)
         return ({
             result: 'fail',
             msg: '팀 검색 실패'

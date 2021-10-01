@@ -38,12 +38,12 @@ function decodeToken(token) {
 
 // JWT 처리 미들웨어
 exports.jwtMiddleware = async (ctx, next) => {
-    const token = ctx.cookies.get('access_token'); // ctx 에서 access_token 읽어옴
+    const token = ctx.cookies.get('access_token'); // 쿠키에서 access_token 읽음
     if(!token) return next(); // 토큰 없으면 바로 다음 작업 진생
 
     try {
         const decoded = await decodeToken(token); // 토큰디코딩
-        console.log(`decoded user id = ${decoded.user_id}`);
+        console.log(`decoded user id = ${decoded.user_id}`);    // 삭제 예정
         global.tokenUserId = decoded.user_id;
         // 토큰 만료일이 12시간밖에 안남으면 토큰 재발급
         if(Date.now() / 1000 - decoded.iat > 60 * 60 * 12) {
@@ -59,7 +59,6 @@ exports.jwtMiddleware = async (ctx, next) => {
                 httpOnly: true
             });
         }
-
         // ctx.request.user 에 디코딩된 값을 넣음
         ctx.request.user = decoded;
     } catch (e) {

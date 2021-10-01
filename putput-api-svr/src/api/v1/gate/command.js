@@ -8,10 +8,6 @@ const Reward = require('../reward');
 const Egg = require('../egg');
 const Comment = require('../comment');
 
-const Feed = require('../feed');
-
-const Token = require('../token');
-
 const cmds = {
     // 유저
     'req_Join' : User.register,             // 회원가입
@@ -39,8 +35,8 @@ const cmds = {
     // 상자
     'reg_BoxFind' : Box.findOne,
     'reg_BoxSearch' : Box.search,
-    'req_MissionRewardInfo' : Box.missionRewardFindOne, // 미션&보상 정보
-    'req_CorrectAnswer' : Box.correctAnswer,            // 미션 성공
+    'req_MissionRewardInfo' : Box.missionRewardFindOne,     // 미션&보상 정보
+    'req_CorrectAnswer' : Box.correctAnswer,                // 미션 성공
 
     // 팀
     'reg_TeamSearch' : Team.search,
@@ -57,9 +53,6 @@ const cmds = {
     'req_RewardDelete' : Reward.delete,
     'req_RewardList' : Reward.search,
 
-    // 알&상자 검색 테스트
-    'FeedSearch' : Feed.search,
-
     //egg
     'req_Writing': Egg.register,
     'req_Modify': Egg.update,
@@ -73,15 +66,12 @@ const cmds = {
     'req_CommentModify': Comment.update,
     'req_CommentDelete': Comment.delete,
 
-    // token test
-    'TokenTest': Token.tokenTest,
-    'TokenClaerTest': Token.tokenTest,
 }
 
 
 exports.cmd = async (ctx) => {
-    // ED: aes encode, CD: aes CShape encode,  ND: normal
-    const { ED, ND, CD } = ctx.request.body;
+    // ND: normal
+    const { ND } = ctx.request.body;
     const rep = {
         body: {},
         data: null,
@@ -105,14 +95,13 @@ exports.cmd = async (ctx) => {
                 log.info('rep.data.cmd or rep.data.param undefined');
                 rep.body.error = '잘못된 요청문 입니다.';
             } else {
-                // console.log("rep.data.cmd = "+rep.data.cmd)
                 if(cmds[rep.data.cmd] === undefined){
                     log.info('CMD not found.');
                     rep.result = {
                         result: 'fail',
                         msg: `${rep.data.cmd} : CMD not found.`
                     }
-                }else if(rep.data.cmd === 'req_Join' || rep.data.cmd === 'req_RevealID' || rep.data.cmd === 'req_RevealPassword' || rep.data.cmd === 'req_Login'){
+                }else if(rep.data.cmd in {req_Join:'req_Join', req_RevealID:'req_RevealID', req_RevealPassword:'req_RevealPassword', req_Login:'req_Login'} ){
                     log.info(`Client Request ***** ${rep.data.cmd} ***** START`);
                     rep.result = await cmds[rep.data.cmd](rep.data.param);
                 }else{

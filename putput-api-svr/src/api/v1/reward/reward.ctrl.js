@@ -2,6 +2,7 @@ const Reward = require('../../../db/models/Reward');
 const { Types: { ObjectId } } = require('mongoose');
 const datefomat = require('../../../lib/dateFomat');
 const log = require('../../../lib/log');
+const essentialVarChk = require('../../../lib/essentialVarChk');
 
 exports.register = async (param) => {
     const {
@@ -9,7 +10,12 @@ exports.register = async (param) => {
         contents,
         img_url
     } = param;
-
+    if(!essentialVarChk.valueCheck([user_key, contents])){
+        return ({
+            result: 'fail',
+            msg: '필수 값 확인'
+        });
+    }
     try {
         let reward = await Reward.localRegister({
             user_key,
@@ -26,7 +32,8 @@ exports.register = async (param) => {
             }
         });
     } catch (e) {
-        log.error(`reward register => ${e}`);
+        log.error(`reward register =>`);
+        console.log(e);
         return ({
             result: 'fail',
             msg: '보상 등록 실패'
@@ -38,7 +45,7 @@ exports.update = async (param) => {
     const matchQ = {_id : param.reward_key, det_dttm:null};
     delete param.reward_key;
     try{
-        if (!ObjectId.isValid(matchQ._id) || param === undefined) {
+        if (!ObjectId.isValid(matchQ._id)) {
             return ({
                 result: 'fail',
                 msg: '형식 오류'
@@ -56,7 +63,8 @@ exports.update = async (param) => {
             }
         });
     }catch (e) {
-        log.error(`reward update => ${e}`);
+        log.error(`reward update =>`);
+        console.log(e);
         return ({
             result: 'fail',
             msg: '보상 수정 실패'
@@ -70,7 +78,7 @@ exports.delete = async (param) => {
         det_dttm : datefomat.getCurrentDate()
     }
     try{
-        if (!ObjectId.isValid(matchQ._id)) {
+        if (!ObjectId.isValid(matchQ._id) || !ObjectId.isValid(matchQ.user_key)) {
             return ({
                 result: 'fail',
                 msg: '형식 오류'
@@ -88,7 +96,8 @@ exports.delete = async (param) => {
             }
         });
     }catch (e) {
-        log.error(`reward delete => ${e}`);
+        log.error(`reward delete =>`);
+        console.log(e);
         return ({
             result: 'fail',
             msg: '보상 삭제 실패'
@@ -115,7 +124,8 @@ exports.findOne = async (param) => {
             }
         });
     }catch (e) {
-        log.error(`reward findOne => ${e}`);
+        log.error(`reward findOne =>`);
+        console.log(e);
         return ({
             result: 'fail',
             msg: '보상 검색 실패'
@@ -125,6 +135,12 @@ exports.findOne = async (param) => {
 
 exports.search = async (param) => {
     try {
+        if (!ObjectId.isValid(param.user_key)) {
+            return ({
+                result: 'fail',
+                msg: '형식 오류'
+            });
+        }
         param.det_dttm = null;
         let reward =
             await Reward.find(
@@ -145,7 +161,8 @@ exports.search = async (param) => {
             }
         });
     }catch (e) {
-        log.error(`reward search => ${e}`);
+        log.error(`reward search =>`);
+        console.log(e);
         return ({
             result: 'fail',
             msg: '보상 검색 실패'

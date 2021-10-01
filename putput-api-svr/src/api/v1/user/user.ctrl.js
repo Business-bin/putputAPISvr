@@ -2,6 +2,7 @@ const User = require('../../../db/models/User');
 const crypto = require('../../../lib/CryptoAES');
 const { Types: { ObjectId } } = require('mongoose');
 const log = require('../../../lib/log');
+const essentialVarChk = require('../../../lib/essentialVarChk');
 const jwtMiddleware = require('../../../lib/jwtToken');
 const Project = require('../project/project.ctrl');
 const Team = require('../team/team.ctrl');
@@ -17,10 +18,10 @@ exports.register = async (param) => {
         phone
         // nick
     } = param;
-    if(!user_id || !user_pw || !name || !email || !phone){
+    if(!essentialVarChk.valueCheck([user_id,user_pw,name,email,phone])){
         return ({
             result: 'fail',
-            msg: '빈 값'
+            msg: '필수 값 확인'
         });
     }
     user_pw = crypto.encryptAES(user_pw);
@@ -72,7 +73,8 @@ exports.register = async (param) => {
         try {
             token = await jwtMiddleware.generateToken({user_id});
         } catch (e) {
-            log.error(`user login generateToken => ${e}`);
+            log.error(`user register generateToke =>`);
+            console.log(e);
             return ({
                 result: 'fail',
                 msg: '토큰 생성 오류'
@@ -89,7 +91,8 @@ exports.register = async (param) => {
             token : token
         });
     } catch (e) {
-        log.error(`user register => ${e}`);
+        log.error(`user register =>`);
+        console.log(e);
         return ({
             result: 'fail',
             msg: '회원가입 실패'
@@ -100,6 +103,12 @@ exports.register = async (param) => {
 // 아이디 찾기
 exports.findId = async (param) => {
     try {
+        if(!essentialVarChk.valueCheck([param.name,param.phone])){
+            return ({
+                result: 'fail',
+                msg: '필수 값 확인'
+            });
+        }
         const user = await User.findOne(param).exec();
         if(!user) {
             return ({
@@ -107,7 +116,6 @@ exports.findId = async (param) => {
                 msg: '검색 정보 없음'
             });
         }
-
         return ({
             result: 'ok',
             data: {
@@ -127,6 +135,12 @@ exports.findId = async (param) => {
 // 패스워드 찾기
 exports.findPw = async (param) => {
     try {
+        if(!essentialVarChk.valueCheck([param.user_id,param.phone])){
+            return ({
+                result: 'fail',
+                msg: '필수 값 확인'
+            });
+        }
         const user = await User.findOne(param).exec();
         if(!user) {
             return ({
@@ -172,7 +186,13 @@ exports.findOne = async (param) => {
 
 // 로그인
 exports.login = async (param) => {
-    const { user_id, user_pw } = param
+    const { user_id, user_pw } = param;
+    if(!essentialVarChk.valueCheck([user_id, user_pw])){
+        return ({
+            result: 'fail',
+            msg: '필수 값 확인'
+        });
+    }
     param = {user_id, det_dttm : null}
     try{
         let user =

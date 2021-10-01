@@ -3,6 +3,7 @@ const { Types: { ObjectId } } = require('mongoose');
 const datefomat = require('../../../lib/dateFomat');
 const Comment = require('../comment/comment.ctrl');
 const log = require('../../../lib/log');
+const essentialVarChk = require('../../../lib/essentialVarChk');
 
 exports.register = async (param) => {
     const {
@@ -13,7 +14,12 @@ exports.register = async (param) => {
         latitude,
         longitude
     } = param;
-
+    if(!essentialVarChk.valueCheck([user_id, contents, latitude, longitude])){
+        return ({
+            result: 'fail',
+            msg: '필수 값 확인'
+        });
+    }
     try {
         const egg = await Egg.localRegister({
             user_id,
@@ -30,7 +36,8 @@ exports.register = async (param) => {
             }
         });
     } catch (e) {
-        log.error(`egg register => ${e}`);
+        log.error('egg register => ');
+        console.log(e);
         return ({
             result: 'fail',
             msg: '알 등록 실패'
@@ -46,7 +53,7 @@ exports.update = async (param) => {
         , emotion : param.emotion
     }
     try{
-        if (!ObjectId.isValid(matchQ._id) || fields === undefined) {
+        if (!ObjectId.isValid(matchQ._id)) {
             return ({
                 result: 'fail',
                 msg: '형식 오류'
@@ -67,7 +74,8 @@ exports.update = async (param) => {
             });
         }
     }catch (e) {
-        log.error(`egg update => ${e}`);
+        log.error('egg update => ');
+        console.log(e);
         return ({
             result: 'fail',
             msg: '알 수정 실패'
@@ -90,7 +98,8 @@ exports.commentCntUpdate = async (param) => {
             }
         });
     }catch (e) {
-        log.error(`egg commentCntUpdate => ${e}`);
+        log.error('egg commentCntUpdate => ');
+        console.log(e);
         return ({
             result: 'fail',
             msg: '알 수정 실패'
@@ -103,7 +112,7 @@ exports.delete = async (param) => {
         det_dttm : datefomat.getCurrentDate()
     }
     try{
-        if (!ObjectId.isValid(matchQ._id) || fields === undefined) {
+        if (!ObjectId.isValid(matchQ._id)) {
             return ({
                 result: 'fail',
                 msg: '형식 오류'
@@ -124,7 +133,8 @@ exports.delete = async (param) => {
             });
         }
     }catch (e) {
-        log.error(`egg delete => ${e}`);
+        log.error('egg delete => ');
+        console.log(e);
         return ({
             result: 'fail',
             msg: '알 삭제 실패'
@@ -134,9 +144,15 @@ exports.delete = async (param) => {
 
 exports.findOne = async (param) => {
     try {
+        if (!ObjectId.isValid(param.egg_key)) {
+            return ({
+                result: 'fail',
+                msg: '형식 오류'
+            });
+        }
         let egg = await Egg.findOne(
-            {_id : param.egg_key}
-            ,{"_id":true, "user_id":true, "contents":true, "pic_url":true, "emotion":true
+            {_id : param.egg_key},
+            {"_id":true, "user_id":true, "contents":true, "pic_url":true, "emotion":true
             , "reg_dttm":true}
         ).exec();
         if(egg) {
@@ -162,7 +178,8 @@ exports.findOne = async (param) => {
             }
         });
     } catch (e) {
-        log.error(`egg findOne => ${e}`);
+        log.error('egg findOne => ');
+        console.log(e);
         return ({
             result: 'fail',
             msg: '알 검색 실패'
@@ -171,6 +188,12 @@ exports.findOne = async (param) => {
 }
 
 exports.search = async (param) => {
+    if(!essentialVarChk.valueCheck([param.user_id])){
+        return ({
+            result: 'fail',
+            msg: '필수 값 확인'
+        });
+    }
     try {
         let egg = await Egg.find(
             param
@@ -194,7 +217,8 @@ exports.search = async (param) => {
             }
         });
     } catch (e) {
-        log.error(`egg search => ${e}`);
+        log.error('egg search => ');
+        console.log(e);
         return ({
             result: 'fail',
             msg: '알 검색 실패'
@@ -203,6 +227,12 @@ exports.search = async (param) => {
 };
 
 exports.aroundSearch = async (param) => {
+    if(!essentialVarChk.valueCheck([param.longitude, param.latitude])){
+        return ({
+            result: 'fail',
+            msg: '필수 값 확인'
+        });
+    }
     try{
         let egg = await Egg.find({
                     location: {
@@ -225,7 +255,8 @@ exports.aroundSearch = async (param) => {
             }
         });
     }catch (e) {
-        log.error(`egg aroundSearch => ${e}`);
+        log.error('egg aroundSearch => ');
+        console.log(e);
         return ({
             result: 'fail',
             msg: '알 검색 실패'

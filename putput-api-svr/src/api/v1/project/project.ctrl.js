@@ -3,6 +3,7 @@ const User = require('../user/user.ctrl');
 const Team = require('../team/team.ctrl');
 const Box = require('../box/box.ctrl');
 const log = require('../../../lib/log');
+const essentialVarChk = require('../../../lib/essentialVarChk');
 const datefomat = require('../../../lib/dateFomat');
 const fail = require('../../../lib/fail');
 const { Types: { ObjectId } } = require('mongoose');
@@ -18,6 +19,12 @@ exports.register = async (param) => {
         state,
         box_cnt
     } = param;
+    if(!essentialVarChk.valueCheck([user_key, title, teams])){
+        return ({
+            result: 'fail',
+            msg: '필수 값 확인'
+        });
+    }
     try {
         let project = await Project.localRegister({
             user_key,
@@ -34,8 +41,8 @@ exports.register = async (param) => {
             const team = await Team.register({project_key:project._id,index:team_names[t].index, name:team_names[t].name});
             if(team.result === 'fail') {
                 await fail.deleteProcessiong([
-                    {failOb:"PROJECT", field:{_id:project._id}}
-                    ,{failOb:"TEAM", field:{project_key:project._id}}
+                    {failOb:"PROJECT", field:{_id:project._id}},
+                    {failOb:"TEAM", field:{project_key:project._id}}
                 ]);
                 throw new Error('팀 등록 에러');
             }
@@ -46,19 +53,19 @@ exports.register = async (param) => {
         const user = await User.projectCntUpdate({_id:user_key}, 1);
         if(user.result === 'fail'){
             await fail.deleteProcessiong([
-                {failOb:"PROJECT", field:{_id:project._id}}
-                ,{failOb:"TEAM", field:{project_key:project._id}}
+                {failOb:"PROJECT", field:{_id:project._id}},
+                {failOb:"TEAM", field:{project_key:project._id}}
             ]);
             throw Error("유저 create_p 업데이트 에러");
         }
         project = {
-            project_key: project._id
-            , user_key: project.user_key
-            , title: project.title
-            , join_code: project.join_code
-            , state: project.state
-            , box_cnt: project.box_cnt
-            , team_name: teamlist
+            project_key: project._id,
+            user_key: project.user_key,
+            title: project.title,
+            join_code: project.join_code,
+            state: project.state,
+            box_cnt: project.box_cnt,
+            team_name: teamlist
         }
         return ({
             result: 'ok',
@@ -78,8 +85,8 @@ exports.register = async (param) => {
 
 exports.update = async (param) => {
     const {
-        project_key
-        , boxlist
+        project_key,
+        boxlist
     } = param;
     if(!ObjectId.isValid(project_key)) {
         return ({
@@ -252,6 +259,12 @@ exports.publicProjectList = async (param) => {
 }
 
 exports.myProjectList = async (param) => {
+    if(!essentialVarChk.valueCheck([param.user_key])){
+        return ({
+            result: 'fail',
+            msg: '필수 값 확인'
+        });
+    }
     try {
         const project = await this.search(param);
         return ({
@@ -330,11 +343,17 @@ exports.search = async (param) => {
 
 exports.joinProject = async (param) => {
     const{
-        user_key
-        ,project_key
-        ,team_key
-        ,join_code
+        user_key,
+        project_key,
+        team_key,
+        join_code
     } = param
+    if(!essentialVarChk.valueCheck([user_key, project_key, team_key])){
+        return ({
+            result: 'fail',
+            msg: '필수 값 확인'
+        });
+    }
     try {
         // 참여중이 프로젝트 체크
         const userChk = await User.findOne({_id:user_key, det_dttm:null});
@@ -380,9 +399,9 @@ exports.joinProject = async (param) => {
         return ({
             result: 'ok',
             data: {
-                project
-                ,teamlist:teamlist.data.team
-                ,boxlist:boxlist.data.box
+                project,
+                teamlist:teamlist.data.team,
+                boxlist:boxlist.data.box
             }
         });
     }catch (e) {
@@ -399,11 +418,18 @@ exports.exitProject = async (param) => {
     const {
         user_key
     } = param;
+    if(!essentialVarChk.valueCheck([user_key])){
+        return ({
+            result: 'fail',
+            msg: '필수 값 확인'
+        });
+    }
     try{
         const user = await User.update({user_key, join_p_key:null, join_p_jointeamkey:null});
         return ({
             result: 'ok',
             data: {
+                user
             }
         });
     }catch (e) {
@@ -437,6 +463,7 @@ exports.updateState = async (param) => {
         return ({
             result: 'ok',
             data: {
+                project
             }
         });
     }catch (e) {
@@ -456,7 +483,7 @@ projectDelFail = async (ob, param) => {
         ]);
     }else if(ob === "BOX") {
         await fail.updateProcessiong([
-            {failOb:"PROJECT", matchQ: matchQ, field: {$set:{det_dttm:null}}}
+            {failOb:"PROJECT", matchQ: {_id : param.project_key, user_key : param.user_key}, field: {$set:{det_dttm:null}}}
             ,{failOb:"USER", matchQ: {_id:param.user_key}, field: {$inc:{create_p:+1}}}
         ]);
     }else if(ob === "TEAM") {

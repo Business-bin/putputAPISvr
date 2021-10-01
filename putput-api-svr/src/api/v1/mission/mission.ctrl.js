@@ -2,6 +2,7 @@ const Mission = require('../../../db/models/Mission');
 const { Types: { ObjectId } } = require('mongoose');
 const datefomat = require('../../../lib/dateFomat');
 const log = require('../../../lib/log');
+const essentialVarChk = require('../../../lib/essentialVarChk');
 
 exports.register = async (param) => {
     const {
@@ -14,7 +15,12 @@ exports.register = async (param) => {
         solution,
         exposition
     } = param;
-
+    if(!essentialVarChk.valueCheck([user_key, question, ex1, ex2, ex3, ex4, solution])){
+        return ({
+            result: 'fail',
+            msg: '필수 값 확인'
+        });
+    }
     try {
         let mission = await Mission.localRegister({
             user_key,
@@ -36,7 +42,8 @@ exports.register = async (param) => {
             }
         });
     } catch (e) {
-        log.error(`mission register => ${e}`);
+        log.error(`mission register =>`);
+        console.log(e);
         return ({
             result: 'fail',
             msg: '문제 등록 실패'
@@ -48,7 +55,7 @@ exports.update = async (param) => {
     const matchQ = {_id : param.mission_key, det_dttm:null};
     delete param.mission_key;
     try{
-        if (!ObjectId.isValid(matchQ._id) || param === undefined) {
+        if (!ObjectId.isValid(matchQ._id)) {
             return ({
                 result: 'fail',
                 msg: '형식 오류'
@@ -66,7 +73,8 @@ exports.update = async (param) => {
             }
         });
     }catch (e) {
-        log.error(`mission update => ${e}`);
+        log.error(`mission update =>`);
+        console.log(e);
         return ({
             result: 'fail',
             msg: '문제 수정 실패'
@@ -80,7 +88,7 @@ exports.delete = async (param) => {
         det_dttm : datefomat.getCurrentDate()
     }
     try{
-        if (!ObjectId.isValid(matchQ._id)) {
+        if (!ObjectId.isValid(matchQ._id) || !ObjectId.isValid(matchQ.user_key)) {
             return ({
                 result: 'fail',
                 msg: '형식 오류'
@@ -98,7 +106,8 @@ exports.delete = async (param) => {
             }
         });
     }catch (e) {
-        log.error(`mission delete => ${e}`);
+        log.error(`mission delete =>`);
+        console.log(e);
         return ({
             result: 'fail',
             msg: '문제 삭제 실패'
@@ -136,6 +145,12 @@ exports.findOne = async (param) => {
 
 exports.search = async (param) => {
     try {
+        if (!ObjectId.isValid(param.user_key)) {
+            return ({
+                result: 'fail',
+                msg: '형식 오류'
+            });
+        }
         param.det_dttm = null;
         let mission =
             await Mission.find(
@@ -157,7 +172,8 @@ exports.search = async (param) => {
             }
         });
     }catch (e) {
-        log.error(`mission search => ${e}`);
+        log.error(`mission search =>`);
+        console.log(e);
         return ({
             result: 'fail',
             msg: '문제 검색 실패'

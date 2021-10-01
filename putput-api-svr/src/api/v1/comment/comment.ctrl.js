@@ -3,6 +3,7 @@ const { Types: { ObjectId } } = require('mongoose');
 const datefomat = require('../../../lib/dateFomat');
 const Egg = require('../egg/egg.ctrl');
 const log = require('../../../lib/log');
+const essentialVarChk = require('../../../lib/essentialVarChk');
 const fail = require('../../../lib/fail');
 
 exports.register = async (param) => {
@@ -12,7 +13,12 @@ exports.register = async (param) => {
         ac_comment,
         emotion
     } = param;
-
+    if(!essentialVarChk.valueCheck([egg_key, user_id, ac_comment])){
+        return ({
+            result: 'fail',
+            msg: '필수 값 확인'
+        });
+    }
     try {
         let comment = await Comment.localRegister({
             egg_key,
@@ -21,12 +27,12 @@ exports.register = async (param) => {
             emotion
         });
         comment = {
-            comment_key : comment._id
-            , date : comment.reg_dttm
+            comment_key : comment._id,
+            date : comment.reg_dttm
         }
         const eggParam = {
-            id:egg_key
-            ,cnt:+1 // {$inc:{comment_cnt:+1}}
+            id:egg_key,
+            cnt:+1 // {$inc:{comment_cnt:+1}}
         }
         const egg = await Egg.commentCntUpdate(eggParam);
         if(egg.result === 'fail'){
@@ -40,7 +46,8 @@ exports.register = async (param) => {
             }
         });
     } catch (e) {
-        log.error(`comment register => ${e}`);
+        log.error('comment register => ');
+        console.log(e);
         return ({
             result: 'fail',
             msg: '댓글 등록 실패'
@@ -55,7 +62,7 @@ exports.update = async (param) => {
         , emotion : param.emotion
     }
     try{
-        if (!ObjectId.isValid(matchQ._id) || fields === undefined) {
+        if (!ObjectId.isValid(matchQ._id)) {
             return ({
                 result: 'fail',
                 msg: '형식 오류'
@@ -76,7 +83,8 @@ exports.update = async (param) => {
             });
         }
     }catch (e) {
-        log.error(`comment update => ${e}`);
+        log.error('comment update => ');
+        console.log(e);
         return ({
             result: 'fail',
             msg: '댓글 수정 실패'
@@ -89,8 +97,14 @@ exports.delete = async (param) => {
     const fields = {
         det_dttm : datefomat.getCurrentDate()
     }
+    if(!essentialVarChk.valueCheck([matchQ.user_id])){
+        return ({
+            result: 'fail',
+            msg: '필수 값 확인'
+        });
+    }
     try{
-        if (!ObjectId.isValid(matchQ._id) || fields === undefined) {
+        if (!ObjectId.isValid(matchQ._id)) {
             return ({
                 result: 'fail',
                 msg: '형식 오류'
@@ -103,8 +117,8 @@ exports.delete = async (param) => {
         }).exec();
 
         const eggParam = {
-            id:comment.egg_key
-            ,cnt:-1
+            id:comment.egg_key,
+            cnt:-1
         }
         const egg = await Egg.commentCntUpdate(eggParam);
         if(egg.result === "fail"){
@@ -121,7 +135,8 @@ exports.delete = async (param) => {
             });
         }
     }catch (e) {
-        log.error(`comment delete => ${e}`);
+        log.error('comment delete => ');
+        console.log(e);
         return ({
             result: 'fail',
             msg: '댓글 삭제 실패'
@@ -153,7 +168,8 @@ exports.search = async (param) => {
             }
         });
     }catch (e) {
-        log.error(`comment search => ${e}`);
+        log.error('comment search => ');
+        console.log(e);
         return ({
             result: 'fail',
             msg: '팀 검색 실패'

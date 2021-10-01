@@ -3,12 +3,12 @@ const { Schema } = mongoose;
 const datefomat = require('../../lib/dateFomat');
 
 const Comment = new Schema({
-    egg_key: Schema.Types.ObjectId,     // 알(글) 아이디
-    user_id: String,     // 작성자 아이디
+    egg_key:    Schema.Types.ObjectId,  // 알(글) 아이디
+    user_id:    String,                 // 작성자 아이디
     ac_comment: String,                 // 댓글 내용
-    emotion: String,                    // 감정표현
-    reg_dttm: Date,
-    det_dttm: Date
+    emotion:    String,                 // 감정표현
+    reg_dttm:   Date,
+    det_dttm:   Date
 });
 
 Comment.statics.localRegister = async function({

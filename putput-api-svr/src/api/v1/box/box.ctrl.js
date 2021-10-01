@@ -4,6 +4,7 @@ const Reward = require('../reward/reward.ctrl');
 const Team = require('../team/team.ctrl');
 const fail = require('../../../lib/fail');
 const log = require('../../../lib/log');
+const essentialVarChk = require('../../../lib/essentialVarChk');
 const datefomat = require('../../../lib/dateFomat');
 const { Types: { ObjectId } } = require('mongoose');
 
@@ -33,7 +34,8 @@ exports.register = async (param) => {
             }
         });
     } catch (e) {
-        log.error(`box register => ${e}`);
+        log.error(`box register =>`);
+        console.log(e);
         return ({
             result: 'fail',
             msg: '박스 등록 실패'
@@ -43,11 +45,11 @@ exports.register = async (param) => {
 exports.update = async (param) => {
     const matchQ = {_id : param.box_key, det_dttm:null};
     const {
-        mission_key
-        , reward_key
-        , get_limit
-        , latitude
-        , longitude
+        mission_key,
+        reward_key,
+        get_limit,
+        latitude,
+        longitude
     } = param
     try{
         if (!ObjectId.isValid(matchQ._id) || param === undefined) {
@@ -57,12 +59,12 @@ exports.update = async (param) => {
             });
         }
         const box = await Box.findOneAndUpdate(matchQ, {
-            mission_key
-            , reward_key
-            , get_limit
-            , latitude
-            , longitude
-            , location:{type:"Point", coordinates:[Number(param.longitude),Number(param.latitude)]}
+            mission_key,
+            reward_key,
+            get_limit,
+            latitude,
+            longitude,
+            location:{type:"Point", coordinates:[Number(param.longitude),Number(param.latitude)]}
             }, {
             upsert: true,
             returnNewDocument: true, // 결과 반환
@@ -133,7 +135,8 @@ exports.findOne = async (param) => {
             });
         }
     }catch (e) {
-        log.error(`box findOne => ${e}`);
+        log.error('box findOne => ');
+        console.log(e)
         return ({
             result: 'fail',
             msg: '상자 검색 실패'
@@ -164,7 +167,8 @@ exports.search = async (param) => {
             }
         });
     }catch (e) {
-        log.error(`box search => ${e}`);
+        log.error('box search => ');
+        console.log(e)
         return ({
             result: 'fail',
             msg: '상자 검색 실패'
@@ -173,31 +177,35 @@ exports.search = async (param) => {
 }
 
 exports.missionRewardFindOne = async (param) => {
+    if(!essentialVarChk.valueCheck([param.box_key])){
+        return ({
+            result: 'fail',
+            msg: '필수 값 확인'
+        });
+    }
     try {
         const box = await Box.findOne(
-                {_id : param.box_key, det_dttm : null}
-                ,{"_id":true, "mission_key":true, "reward_key":true}
+                {_id : param.box_key, det_dttm : null},
+                {"_id":true, "mission_key":true, "reward_key":true}
             ).exec();
         if(!box){
             return ({
-                result: 'ok'
-                ,data: null
-                ,msg: '키에대한 박스 없음'
+                result: 'ok',
+                data: null
             });
         }
         let mission = await Mission.findOne({_id:box.mission_key, det_dttm:null});
-        mission = mission.data.mission;
         let reward = await Reward.findOne({_id:box.reward_key, det_dttm:null});
-        reward = reward.data.reward;
         return ({
-            result: 'ok'
-            ,data: {
-                mission
-                ,reward
+            result: 'ok',
+            data: {
+                mission:mission.data.mission,
+                reward:reward.data.reward
             }
         });
     }catch (e) {
-        log.error(`box missionRewardFindOne => ${e}`);
+        log.error('box missionRewardFindOne => ');
+        console.log(e)
         return ({
             result: 'fail',
             msg: '미션&보상 검색 실패'
@@ -207,9 +215,9 @@ exports.missionRewardFindOne = async (param) => {
 
 exports.correctAnswer = async (param) => {
     const {
-        project_key
-        ,team_key
-        ,box_key
+        project_key,
+        team_key,
+        box_key
     } = param;
     let get_reward = false;
     try {
@@ -241,15 +249,16 @@ exports.correctAnswer = async (param) => {
         }
         const team = await Team.search({project_key});
         return ({
-            result: 'ok'
-            ,data: {
-                project_key
-                ,get_reward
-                ,teamlist : team.data.team
+            result: 'ok',
+            data: {
+                project_key,
+                get_reward,
+                teamlist : team.data.team
             }
         });
     }catch (e) {
-        log.error(`correctAnswer => ${e}`);
+        log.error('box correctAnswer => ');
+        console.log(e)
         return ({
             result: 'fail',
             msg: '정답 처리 실패'

@@ -8,9 +8,7 @@ const Team = require('../db/models/Team');
 const User = require('../db/models/User');
 
 exports.deleteProcessiong = async (failData) => {
-    console.log(`길이 = ${failData.length}`)
     for(let f in failData){
-        console.log(failData[f])
         switch (failData[f].failOb){
             case "BOX" :
                 await Box.remove(failData[f].field);
@@ -39,13 +37,10 @@ exports.deleteProcessiong = async (failData) => {
                 break
         }
     }
-    return null;
 }
 
 exports.updateProcessiong = async (failData) => {
-    console.log(`길이 = ${failData.length}`)
     for(let f in failData){
-        console.log(failData[f])
         switch (failData[f].failOb){
             case "BOX" :
                 await Box.update(failData[f].matchQ, failData[f].field, {
