@@ -25,14 +25,16 @@ const cmds = {
     'test2' : User.test2,
 
     // 프로젝트
-    'req_ProjectCreate' : Project.register,         // 프로젝트 생성
-    'req_ProjectModify' : Project.update,           // 프로젝트 수정(박스 생성/수정/삭제)
+    'req_ProjectCreate' : Project.register,                 // 프로젝트 생성
+    'req_ProjectModify' : Project.update,                   // 프로젝트 수정(박스 생성/수정/삭제)
     'req_ProjectDelete' : Project.delete,
-    'req_PublicProjectList' : Project.search,
+    'req_PublicProjectList' : Project.publicProjectList,    // 플레이(state)중인 프로젝트 검색
+    'req_MyProjectList' : Project.myProjectList,            // 내가만드 프로젝트 검색
+    'req_EventProjectList' : Project.eventProjectList,      // 지역이벤트 프로젝트 검색
     'req_ProjectFind' : Project.findOne,
-    'req_JoinProject' : Project.joinProject,        // 프로젝트 참가
-    'req_ExitProject' : Project.exitProject,        // 프로젝트 나가기
-    'req_ProjectChangeState' : Project.updateState, // 프로젝트 상태 변경
+    'req_JoinProject' : Project.joinProject,                // 프로젝트 참가
+    'req_ExitProject' : Project.exitProject,                // 프로젝트 나가기
+    'req_ProjectChangeState' : Project.updateState,         // 프로젝트 상태 변경
 
     // 상자
     'reg_BoxFind' : Box.findOne,

@@ -77,7 +77,6 @@ exports.register = async (param) => {
 };
 
 exports.update = async (param) => {
-    console.log("111")
     const {
         project_key
         , boxlist
@@ -98,7 +97,6 @@ exports.update = async (param) => {
             let box;
             switch (boxlist[b].modifystate){
                 case "insert" :
-                    log.info('박스 생성')
                     boxlist[b].mission_key = boxlist[b].mission_key == "" ? null : boxlist[b].mission_key;
                     boxlist[b].reward_key = boxlist[b].reward_key == "" ? null : boxlist[b].reward_key;
                     boxCnt++;
@@ -107,7 +105,6 @@ exports.update = async (param) => {
                     boxInHistoryArr.push({_id : box.data.box._id});
                     break
                 case "update" :
-                    log.info('박스 수정')
                     boxUpHistoryArr.push(await Box.findOne({_id:boxlist[b].box_key}));
                     boxlist[b].mission_key = boxlist[b].mission_key == "" ? null : boxlist[b].mission_key;
                     boxlist[b].reward_key = boxlist[b].reward_key == "" ? null : boxlist[b].reward_key;
@@ -115,7 +112,6 @@ exports.update = async (param) => {
                     break
                 case "delete" :
                     boxCnt--
-                    log.info('삭제');
                     boxDeHistoryArr.push({_id:boxlist[b].box_key});
                     box = await Box.delete({_id:boxlist[b].box_key});
                     break
@@ -146,11 +142,12 @@ exports.update = async (param) => {
             result: 'ok',
             data: {
                 project_key
-                ,teamlist
+                ,teamlist:teamlist.data.team
             }
         });
     } catch (e) {
-        log.error(`project update => ${e}`);
+        log.error('project update => ');
+        console.log(e)
         return ({
             result: 'fail',
             msg: '프로젝트 수정 실패'
@@ -191,7 +188,6 @@ exports.delete = async (param) => {
         return ({
             result: 'ok',
             data: {
-                project
             }
         });
     }catch (e) {
@@ -213,13 +209,10 @@ exports.findOne = async (param) => {
                 {"_id":true, "user_key":true, "title":true, "join_code":true
                     , "teams":true, "state":true, "box_cnt":true}
             ).exec();
+        project = project ? JSON.parse(JSON.stringify(project)) : {};
         if(project){
-            project = JSON.parse(JSON.stringify(project));
             project.project_key = project._id;
             delete project._id;
-        }
-        else{
-            project = {};
         }
         return ({
             result: 'ok',
@@ -229,13 +222,73 @@ exports.findOne = async (param) => {
             }
         });
     }catch (e) {
-        log.error(`project findOne => ${e}`);
+        log.error(`project findOne =>`);
+        console.log(e);
         return ({
             result: 'fail',
             msg: '프로젝트 검색 실패'
         });
     }
 };
+
+exports.publicProjectList = async (param) => {
+    param.state = 'play';
+    try {
+        const project = await this.search(param);
+        return ({
+            result: 'ok',
+            data: {
+                project : project.data.project
+            }
+        });
+    } catch (e) {
+        log.error(`project publicProjectList =>`);
+        console.log(e);
+        return ({
+            result: 'fail',
+            msg: '진행중 프로젝트 검색 실패'
+        });
+    }
+}
+
+exports.myProjectList = async (param) => {
+    try {
+        const project = await this.search(param);
+        return ({
+            result: 'ok',
+            data: {
+                project : project.data.project
+            }
+        });
+    } catch (e) {
+        log.error(`project myProjectList =>`);
+        console.log(e);
+        return ({
+            result: 'fail',
+            msg: '생성 프로젝트 검색 실패'
+        });
+    }
+}
+
+exports.eventProjectList = async (param) => {
+    param.reg_flag = {$ne:""};
+    try {
+        const project = await this.search(param);
+        return ({
+            result: 'ok',
+            data: {
+                project : project.data.project
+            }
+        });
+    } catch (e) {
+        log.error(`project eventProjectList =>`);
+        console.log(e);
+        return ({
+            result: 'fail',
+            msg: '지역 이벤트 프로젝트 검색 실패'
+        });
+    }
+}
 
 exports.search = async (param) => {
     param.det_dttm = null;
@@ -245,7 +298,6 @@ exports.search = async (param) => {
             ,{_id:true, user_key:true, title:true, join_code:true
                 , teams:true, state:true, box_cnt:true}
         ).exec();
-
         for(let p in project){
             // 팀 조회
             let teamlist = await Team.search({project_key:project[p]._id});
@@ -260,7 +312,6 @@ exports.search = async (param) => {
             project[p].teamlist = teamlist;
             project[p].boxlist = boxlist;
         }
-
         return ({
             result: 'ok',
             data: {
@@ -268,6 +319,7 @@ exports.search = async (param) => {
             }
         });
     } catch (e) {
+        log.error(`project search =>`);
         console.log(e);
         return ({
             result: 'fail',
@@ -312,28 +364,30 @@ exports.joinProject = async (param) => {
         const teamUpdate = await Team.updateJoinCnt({team_key});
         if(teamUpdate.result === 'fail'){
             await fail.updateProcessiong([
-                {failOb:"USER", matchQ:{_id:user_key}, field: {join_p_key:userChk.data.user.join_p_key, join_p_jointeamkey:userChk.data.user.join_p_jointeamkey}}
+                {
+                    failOb:"USER", matchQ:{_id:user_key},
+                    field: {join_p_key:userChk.data.user.join_p_key, join_p_jointeamkey:userChk.data.user.join_p_jointeamkey}
+                }
             ]);
             throw Error("팀 누적참여인원 업데이트 에러");
         }
         project = JSON.parse(JSON.stringify(project));
         project.project_key = project._id;
         delete project._id;
-        let teamlist = await Team.search({project_key});
-        teamlist = teamlist.data.team;
-        // 박스 조회
-        let boxlist = await Box.search({project_key});
-        boxlist = boxlist.data.box;
+
+        const teamlist = await Team.search({project_key});
+        const boxlist = await Box.search({project_key});
         return ({
             result: 'ok',
             data: {
                 project
-                ,teamlist
-                ,boxlist
+                ,teamlist:teamlist.data.team
+                ,boxlist:boxlist.data.box
             }
         });
     }catch (e) {
-        log.error(`joinProject => ${e}`);
+        log.error(`project joinProject =>`);
+        console.log(e);
         return ({
             result: 'fail',
             msg: '프로젝트 참가 실패'
@@ -350,11 +404,11 @@ exports.exitProject = async (param) => {
         return ({
             result: 'ok',
             data: {
-                user
             }
         });
     }catch (e) {
-        log.error(`exitProject => ${e}`);
+        log.error(`project exitProject =>`);
+        console.log(e);
         return ({
             result: 'fail',
             msg: '프로젝트 나가기 실패'
@@ -383,11 +437,11 @@ exports.updateState = async (param) => {
         return ({
             result: 'ok',
             data: {
-                project
             }
         });
     }catch (e) {
-        log.error(`updateState => ${e}`);
+        log.error(`project updateState =>`);
+        console.log(e);
         return ({
             result: 'fail',
             msg: '프로젝트 상태변경 실패'
