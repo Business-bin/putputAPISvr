@@ -121,7 +121,9 @@ exports.findOne = async (param) => {
         if(box){
             box = JSON.parse(JSON.stringify(box));
             box.box_key = box._id;
+            box.limit = box.get_limit;
             delete box._id;
+            delete box.get_limit;
             return ({
                 result: 'ok',
                 type: "box",
@@ -158,7 +160,9 @@ exports.search = async (param) => {
             box = JSON.parse(JSON.stringify(box));
             for(let b in box){
                 box[b].box_key = box[b]._id;
+                box[b].limit = box[b].get_limit;
                 delete box[b]._id;
+                delete box[b].get_limit;
             }
         }
         return ({

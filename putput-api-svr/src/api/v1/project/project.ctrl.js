@@ -141,12 +141,14 @@ exports.update = async (param) => {
         if(boxCnt != 0){
             await Project.findOneAndUpdate({_id:project_key},{$inc:{box_cnt:+boxCnt}});
         }
-        const teamlist = await Team.search({project_key:project_key});
+        const teamList = await Team.search({project_key:project_key});
+        const resultBoxList = await Box.search({project_key});
         return ({
             result: 'ok',
             data: {
-                project_key
-                ,teamlist:teamlist.data.team
+                project_key,
+                teamlist:teamList.data.team,
+                boxlist:resultBoxList.data.box
             }
         });
     } catch (e) {
