@@ -332,17 +332,15 @@ exports.search = async (param) => {
         ).exec();
         for(let p in project){
             // 팀 조회
-            let teamlist = await Team.search({project_key:project[p]._id});
-            teamlist = teamlist.data.team;
+            const teamlist = await Team.search({project_key:project[p]._id});
             // 박스 조회
-            let boxlist = await Box.search({project_key:project[p]._id});
-            boxlist = boxlist.data.box;
+            const boxlist = await Box.search({project_key:project[p]._id});
 
             project[p] = JSON.parse(JSON.stringify(project[p]));
             project[p].project_key = project[p]._id;
             delete project[p]._id;
-            project[p].teamlist = teamlist;
-            project[p].boxlist = boxlist;
+            project[p].teamlist = teamlist.data.team;
+            project[p].boxlist =  boxlist.data.box;
         }
         return ({
             result: 'ok',

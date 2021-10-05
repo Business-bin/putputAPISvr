@@ -114,7 +114,6 @@ exports.cmd = async (ctx) => {
                                 msg: `not login`
                             }
                             : await cmds[rep.data.cmd](rep.data.param);
-
                     }catch (e){
                         log.error('Not login');
                         rep.result = {
