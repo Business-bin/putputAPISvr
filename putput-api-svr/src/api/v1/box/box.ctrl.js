@@ -133,7 +133,7 @@ exports.findOne = async (param) => {
             });
         }else{
             return ({
-                result: 'fail',
+                result: 'ok',
                 msg: '상자 정보 없음'
             });
         }
