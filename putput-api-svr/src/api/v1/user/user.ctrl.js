@@ -115,7 +115,7 @@ exports.findId = async (param) => {
         const user = await User.findOne(param,{"user_id":true}).exec();
         if(!user) {
             return ({
-                result: 'fail',
+                result: 'ok',
                 msg: '검색 정보 없음'
             });
         }
@@ -149,7 +149,7 @@ exports.findPw = async (param) => {
         const user = await User.findOne(param,{"user_pw":true}).exec();
         if(!user) {
             return ({
-                result: 'fail',
+                result: 'ok',
                 msg: '검색 정보 없음'
             });
         }
@@ -303,7 +303,8 @@ exports.update = async (param) => {
             }
         });
     }catch (e) {
-        log.error(`user update => ${e}`);
+        log.error(`user update => `);
+        console.log(e);
         return ({
             result: 'fail',
             msg: '유저 수정 실패'
