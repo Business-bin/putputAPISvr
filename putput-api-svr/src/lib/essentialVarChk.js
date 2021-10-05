@@ -18,3 +18,22 @@ exports.valueCheck = (arrParam) => {
     }
     return true;
 }
+
+exports.verify = (typeStr, checkStr) => {
+    let result = true;
+    switch (typeStr){
+        case "EMAIL" :
+            const regEmail = /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$/i;
+            if(!checkStr.match(regEmail)){
+                result = false;
+            }
+            break
+        case "PHONE" :
+            const regPhone = /^01([0|1|6|7|8|9])-?([0-9]{3,4})-?([0-9]{4})$/;
+            if(!checkStr.match(regPhone)){
+                result = false;
+            }
+            break
+    }
+    return result;
+}

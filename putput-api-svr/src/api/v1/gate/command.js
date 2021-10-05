@@ -19,6 +19,7 @@ const cmds = {
     // 'req_UserUpdate' : User.patchUpdate,    // 계정 수정
     'test1' : User.test1,
     'test2' : User.test2,
+    'test3' : User.test3,
 
     // 프로젝트
     'req_ProjectCreate' : Project.register,                 // 프로젝트 생성

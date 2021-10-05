@@ -37,12 +37,24 @@ exports.register = async (param) => {
                 msg: '아이디 중복'
             });
         }
+        if(!essentialVarChk.verify("EMAIL", email)){
+            return ({
+                result: 'fail',
+                msg: 'EMail 형식 확인'
+            });
+        }
         // 이메일 중복 확인
         const emailCheck = await User.findOne({ email }).exec();
         if (emailCheck) {
             return ({
                 result: 'fail',
                 msg: 'EMail 중복'
+            });
+        }
+        if(!essentialVarChk.verify("PHONE", phone)){
+            return ({
+                result: 'fail',
+                msg: '핸드폰번호 형식 확인'
             });
         }
         // 핸드폰번호 중복 확인
@@ -358,5 +370,15 @@ exports.test2 = async (param) => {
     return ({
         result: 'fail',
         pwde: pwde
+    });
+}
+exports.test3 = async (param) => {
+    const {email, phone} = param;
+    const e = essentialVarChk.verify("EMAIL", email);
+    const p = essentialVarChk.verify("PHONE", phone);
+    return ({
+        result: 'fail',
+        e,
+        p
     });
 }
