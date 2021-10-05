@@ -1,4 +1,5 @@
 const Box = require('../../../db/models/Box');
+const Project = require('../project/project.ctrl');
 const Mission = require('../mission/mission.ctrl');
 const Reward = require('../reward/reward.ctrl');
 const Team = require('../team/team.ctrl');
@@ -186,7 +187,7 @@ exports.missionRewardFindOne = async (param) => {
     try {
         const box = await Box.findOne(
                 {_id : param.box_key, det_dttm : null},
-                {"_id":true, "mission_key":true, "reward_key":true}
+                {"_id":true, "mission_key":true, "reward_key":true, "project_key":true }
             ).exec();
         if(!box){
             return ({
@@ -194,11 +195,13 @@ exports.missionRewardFindOne = async (param) => {
                 data: null
             });
         }
-        let mission = await Mission.findOne({_id:box.mission_key, det_dttm:null});
-        let reward = await Reward.findOne({_id:box.reward_key, det_dttm:null});
+        const project = await Project.findOne({_id:box.project_key});
+        const mission = await Mission.findOne({_id:box.mission_key, det_dttm:null});
+        const reward = await Reward.findOne({_id:box.reward_key, det_dttm:null});
         return ({
             result: 'ok',
             data: {
+                project_state:project.data.project.state,
                 mission:mission.data.mission,
                 reward:reward.data.reward
             }

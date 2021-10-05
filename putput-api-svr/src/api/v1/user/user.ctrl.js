@@ -7,6 +7,8 @@ const jwtMiddleware = require('../../../lib/jwtToken');
 const Project = require('../project/project.ctrl');
 const Team = require('../team/team.ctrl');
 const Box = require('../box/box.ctrl');
+const Mission = require('../mission/mission.ctrl');
+const Reward = require('../reward/reward.ctrl');
 
 // 회원가입
 exports.register = async (param) => {
@@ -102,6 +104,7 @@ exports.register = async (param) => {
 
 // 아이디 찾기
 exports.findId = async (param) => {
+    param.det_dttm = null;
     try {
         if(!essentialVarChk.valueCheck([param.name,param.phone])){
             return ({
@@ -109,7 +112,7 @@ exports.findId = async (param) => {
                 msg: '필수 값 확인'
             });
         }
-        const user = await User.findOne(param).exec();
+        const user = await User.findOne(param,{"user_id":true}).exec();
         if(!user) {
             return ({
                 result: 'fail',
@@ -120,12 +123,13 @@ exports.findId = async (param) => {
             result: 'ok',
             data: {
                 account: {
-                    user: user.user_id
+                    user_id:user.user_id
                 }
             }
         });
     } catch (e) {
-        log.error(`user findId => ${e}`);
+        log.error(`user findId =>`);
+        console.log(e);
         return ({
             result: 'fail',
             msg: '아이디 찾기 오류'
@@ -134,6 +138,7 @@ exports.findId = async (param) => {
 };
 // 패스워드 찾기
 exports.findPw = async (param) => {
+    param.det_dttm = null;
     try {
         if(!essentialVarChk.valueCheck([param.user_id,param.phone])){
             return ({
@@ -141,7 +146,7 @@ exports.findPw = async (param) => {
                 msg: '필수 값 확인'
             });
         }
-        const user = await User.findOne(param).exec();
+        const user = await User.findOne(param,{"user_pw":true}).exec();
         if(!user) {
             return ({
                 result: 'fail',
@@ -153,12 +158,13 @@ exports.findPw = async (param) => {
             result: 'ok',
             data: {
                 account: {
-                    password: pw
+                    user_pw: pw
                 }
             }
         });
     } catch (e) {
-        log.error(`user findPw => ${e}`);
+        log.error(`user findPw =>`);
+        console.log(e);
         return ({
             result: 'fail',
             msg: '패스워드 찾기 오류'
@@ -216,20 +222,22 @@ exports.login = async (param) => {
             user.user_key = user._id;
             delete user._id;
             // 프로젝트 조회
-            let project = await Project.findOne({_id:user.join_p_key});
-            project = project.data.project;
+            const project = await Project.findOne({_id:user.join_p_key});
             // 팀 조회
-            let teamlist = await Team.search({project_key:user.join_p_key});
-            teamlist = teamlist.data.team;
+            const teamlist = await Team.search({project_key:user.join_p_key});
             // 박스 조회
-            let boxlist = await Box.search({project_key:user.join_p_key});
-            boxlist = boxlist.data.box;
+            const boxlist = await Box.search({project_key:user.join_p_key});
+            // 문제 리스트 조회
+            const missionlist = await Mission.search({user_key:user.user_key});
+            // 보상 리스트 조회
+            const rewardlist = await Reward.search({user_key:user.user_key});
 
             let token = null;
             try {
                 token = await jwtMiddleware.generateToken({user_id});
             } catch (e) {
-                log.error(`user login generateToken => ${e}`);
+                log.error(`user login generateToken =>`);
+                console.log(e);
                 return ({
                     result: 'fail',
                     msg: '토큰 생성 오류'
@@ -239,15 +247,18 @@ exports.login = async (param) => {
                 result: 'ok',
                 data: {
                     account: user,
-                    project,
-                    teamlist,
-                    boxlist
+                    project:project.data.project,
+                    teamlist:teamlist.data.team,
+                    boxlist:boxlist.data.box,
+                    missionlist:missionlist.data.mission,
+                    rewardlist:rewardlist.data.reward
                 },
                 token : token
             });
         }
     } catch (e){
-        log.error(`user login => ${e}`);
+        log.error(`user login =>`);
+        console.log(e);
         return ({
             result: 'fail',
             msg: '로그인 오류'
@@ -321,7 +332,8 @@ exports.projectCntUpdate = async (param, cnt) => {
             }
         });
     }catch (e) {
-        log.error(`project register user => ${e}`);
+        log.error(`project register user =>`);
+        console.log(e);
         return ({
             result: 'fail',
             msg: '수정 실패 user'

@@ -26,10 +26,10 @@ exports.register = async (param) => {
             ac_comment,
             emotion
         });
-        comment = {
-            comment_key : comment._id,
-            date : comment.reg_dttm
-        }
+        // comment = {
+        //     comment_key : comment._id,
+        //     date : comment.reg_dttm
+        // }
         const eggParam = {
             id:egg_key,
             cnt:+1 // {$inc:{comment_cnt:+1}}
@@ -42,7 +42,8 @@ exports.register = async (param) => {
         return ({
             result: 'ok',
             data: {
-                comment
+                comment_key : comment._id,
+                date : comment.reg_dttm
             }
         });
     } catch (e) {

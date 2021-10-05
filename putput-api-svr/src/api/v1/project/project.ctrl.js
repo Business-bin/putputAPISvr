@@ -58,19 +58,16 @@ exports.register = async (param) => {
             ]);
             throw Error("유저 create_p 업데이트 에러");
         }
-        project = {
-            project_key: project._id,
-            user_key: project.user_key,
-            title: project.title,
-            join_code: project.join_code,
-            state: project.state,
-            box_cnt: project.box_cnt,
-            team_name: teamlist
-        }
         return ({
             result: 'ok',
             data: {
-                project
+                project_key: project._id,
+                user_key: project.user_key,
+                title: project.title,
+                join_code: project.join_code,
+                state: project.state,
+                box_cnt: project.box_cnt,
+                team_name: teamlist
             }
         });
     } catch (e) {
@@ -216,8 +213,9 @@ exports.findOne = async (param) => {
                 {"_id":true, "user_key":true, "title":true, "join_code":true
                     , "teams":true, "state":true, "box_cnt":true}
             ).exec();
-        project = project ? JSON.parse(JSON.stringify(project)) : {};
+        // project = project ? JSON.parse(JSON.stringify(project)) : {};
         if(project){
+            project = JSON.parse(JSON.stringify(project));
             project.project_key = project._id;
             delete project._id;
         }

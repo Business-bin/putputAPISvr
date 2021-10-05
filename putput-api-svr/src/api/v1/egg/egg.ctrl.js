@@ -32,7 +32,8 @@ exports.register = async (param) => {
         return ({
             result: 'ok',
             data: {
-                egg
+                egg_key:egg._id,
+                date:egg.reg_dttm
             }
         });
     } catch (e) {

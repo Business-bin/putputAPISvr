@@ -32,13 +32,10 @@ exports.register = async (param) => {
             solution,
             exposition
         });
-        mission = JSON.parse(JSON.stringify(mission));
-        mission.mission_key = mission._id;
-        delete mission._id;
         return ({
             result: 'ok',
             data: {
-                mission
+                mission_key:mission._id
             }
         });
     } catch (e) {

@@ -22,13 +22,10 @@ exports.register = async (param) => {
             contents,
             img_url
         });
-        reward = JSON.parse(JSON.stringify(reward));
-        reward.reward_key = reward._id;
-        delete reward._id;
         return ({
             result: 'ok',
             data: {
-                reward
+                reward_key:reward._id
             }
         });
     } catch (e) {
