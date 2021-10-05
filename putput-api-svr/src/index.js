@@ -48,7 +48,11 @@ app.use(router.allowedMethods());
 app.listen(port, '0.0.0.0', () => {
   console.log(`
 **************************************************************************
-Open port : ${port} ${new Moment().format('YYYY-MM-DD HH:mm:ss')}
+OPEN PORT: ${port}                    |\\_/|
+PROJECT  : DUDA API SERVER         |q p|   /}
+DATE     : ${new Moment().format('YYYY-MM-DD HH:mm:ss')}     ( 0 )"""\\
+NODE -V  : v14.17.1                |\"^\"\`    |
+DEVELOPER: BSB                     ||-/=\\\\--|
 **************************************************************************`
   );
 });
