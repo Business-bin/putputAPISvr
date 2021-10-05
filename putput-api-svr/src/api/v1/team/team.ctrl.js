@@ -163,7 +163,6 @@ exports.search = async (param) => {
         }
         return ({
             result: 'ok',
-            type: "team",
             data: {
                 team
             }

@@ -27,6 +27,7 @@ const cmds = {
     'req_PublicProjectList' : Project.publicProjectList,    // 플레이(state)중인 프로젝트 검색
     'req_MyProjectList' : Project.myProjectList,            // 내가만드 프로젝트 검색
     'req_EventProjectList' : Project.eventProjectList,      // 지역이벤트 프로젝트 검색
+    'req_ProjectChart' : Project.projectChartList,          // 프로젝트 통계
     'req_ProjectFind' : Project.findOne,
     'req_JoinProject' : Project.joinProject,                // 프로젝트 참가
     'req_ExitProject' : Project.exitProject,                // 프로젝트 나가기

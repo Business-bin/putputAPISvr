@@ -301,6 +301,25 @@ exports.eventProjectList = async (param) => {
     }
 }
 
+exports.projectChartList = async (param) => {
+    try {
+        const teamlist = await Team.search(param);
+        return ({
+            result: 'ok',
+            data: {
+                teamlist : teamlist.data.team
+            }
+        });
+    } catch (e) {
+        log.error(`project projectChartList =>`);
+        console.log(e);
+        return ({
+            result: 'fail',
+            msg: '프로젝트 팀 통계 검색 실패'
+        });
+    }
+}
+
 exports.search = async (param) => {
     param.det_dttm = null;
     try {
