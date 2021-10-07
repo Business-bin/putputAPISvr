@@ -146,6 +146,7 @@ exports.cmd = async (ctx) => {
     }
     if(rep.data.cmd in {req_Login:'req_Login', req_Join:'req_Join'}){
         ctx.cookies.set('access_token', rep.result.token, { httpOnly: true, maxAge: 1000 * 60 * 60 * 24  });
+        log.info(`발행한 토큰 ***** ${rep.result.token}`);
         delete rep.result.token;
     }else if(rep.data.cmd === "req_Logout"){
         if(rep.result.result === 'ok'){
