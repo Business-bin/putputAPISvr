@@ -110,6 +110,7 @@ exports.cmd = async (ctx) => {
                     try{
                         log.info(`Client Request ***** ${rep.data.cmd} ***** START`);
                         // 토큰값이 없을경우 에러, 토큰 user id와 post data user id 비교
+                        console.log(`rep.data.user = ${rep.data.user}`);
                         rep.result = tokenUserId != rep.data.user ? {
                                 result: 'fail',
                                 msg: `not login`
