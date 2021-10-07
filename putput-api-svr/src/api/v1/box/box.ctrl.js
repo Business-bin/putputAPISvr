@@ -18,7 +18,6 @@ exports.register = async (param) => {
         latitude,
         longitude
     } = param;
-
     try {
         const box = await Box.localRegister({
             project_key,

@@ -107,22 +107,17 @@ exports.cmd = async (ctx) => {
                     log.info(`Client Request ***** ${rep.data.cmd} ***** START`);
                     rep.result = await cmds[rep.data.cmd](rep.data.param);
                 }else{
-                    try{
-                        log.info(`Client Request ***** ${rep.data.cmd} ***** START`);
-                        // 토큰값이 없을경우 에러, 토큰 user id와 post data user id 비교
-                        console.log(`rep.data.user = ${rep.data.user}`);
-                        rep.result = tokenUserId != rep.data.user ? {
-                                result: 'fail',
-                                msg: `not login`
-                            }
-                            : await cmds[rep.data.cmd](rep.data.param);
-                    }catch (e){
-                        log.error('Not login');
-                        rep.result = {
+                    log.info(`Client Request ***** ${rep.data.cmd} ***** START`);
+                    console.log(`rep.data.param-------------------------`);
+                    console.log(rep.data.param);
+                    console.log(`---------------------------------------`);
+                    // 토큰값이 없을경우 에러, 토큰 user id와 post data user id 비교
+                    console.log(`rep.data.user = ${rep.data.user}`);    // 삭제예정
+                    rep.result = tokenUserId != rep.data.user ? {
                             result: 'fail',
                             msg: `not login`
                         }
-                    }
+                        : await cmds[rep.data.cmd](rep.data.param);
                 }
             }
         } catch (e) {
