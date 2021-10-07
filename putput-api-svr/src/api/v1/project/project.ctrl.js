@@ -99,7 +99,7 @@ exports.update = async (param) => {
         let boxDeHistoryArr = [];
         for(let b in boxlist){
             let box;
-            switch (boxlist[b].modifystate){
+            switch (boxlist[b].modify_state){
                 case "insert" :
                     boxlist[b].mission_key = boxlist[b].mission_key == "" ? null : boxlist[b].mission_key;
                     boxlist[b].reward_key = boxlist[b].reward_key == "" ? null : boxlist[b].reward_key;
