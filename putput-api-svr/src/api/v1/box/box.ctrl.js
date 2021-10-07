@@ -58,14 +58,18 @@ exports.update = async (param) => {
                 msg: '형식 오류'
             });
         }
-        const box = await Box.findOneAndUpdate(matchQ, {
+        param = {
             mission_key,
             reward_key,
             get_limit,
             latitude,
             longitude,
             location:{type:"Point", coordinates:[Number(param.longitude),Number(param.latitude)]}
-            }, {
+        }
+        if(Number(get_limit) == 0){
+            param.get_cnt = 0;
+        }
+        const box = await Box.findOneAndUpdate(matchQ, {$set:param}, {
             upsert: true,
             returnNewDocument: true, // 결과 반환
             new: true
@@ -226,6 +230,7 @@ exports.correctAnswer = async (param) => {
         box_key
     } = param;
     let get_reward = false;
+    let error_type = '';
     try {
         if (!ObjectId.isValid(project_key)
             || !ObjectId.isValid(team_key)
@@ -236,7 +241,7 @@ exports.correctAnswer = async (param) => {
             });
         }
         const box = await Box.findOne({_id : box_key, det_dttm : null}).exec();
-        if(box.get_limit > box.get_cnt || box.get_limit === 0) {
+        if(box && (box.get_limit > box.get_cnt || box.get_limit === 0)) {
             get_reward = true;
             await Box.findOneAndUpdate({_id : box_key, det_dttm : null}, {$inc:{get_cnt:+1}}, {
                 upsert: false,
@@ -252,10 +257,17 @@ exports.correctAnswer = async (param) => {
                 ]);
                 throw Error("팀 상자 카운트 수정 오류");
             }
+        }else if(!box){
+            error_type = 'del';
+        }
+        const project = await Project.findOne({_id:project_key});
+        if(project.data.project && project.data.project.state === 'stop'){
+            error_type = 'stop';
         }
         const team = await Team.search({project_key});
         return ({
             result: 'ok',
+            error_type,
             data: {
                 project_key,
                 get_reward,

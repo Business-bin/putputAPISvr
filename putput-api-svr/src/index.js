@@ -49,8 +49,8 @@ app.listen(port, '0.0.0.0', () => {
   console.log(`
 **************************************************************************
 OPEN PORT: ${port}                    |\\_/|
-PROJECT  : DUDA API SERVER         |q p|   /}
-DATE     : ${new Moment().format('YYYY-MM-DD HH:mm:ss')}     ( 0 )"""\\
+PROJECT  : PUTPUT API SERVER       |q p|    /@
+DATE     : ${new Moment().format('YYYY-MM-DD HH:mm:ss')}    (  ∞  )"""\\
 NODE -V  : v14.17.1                |\"^\"\`    |
 DEVELOPER: BSB                     ||-/=\\\\--|
 **************************************************************************`
