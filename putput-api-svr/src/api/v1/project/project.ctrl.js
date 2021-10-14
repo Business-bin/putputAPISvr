@@ -372,14 +372,14 @@ exports.joinProject = async (param) => {
         });
     }
     try {
-        // 참여중이 프로젝트 체크
-        const userChk = await User.findOne({_id:user_key, det_dttm:null});
-        if(userChk.data.user.join_p_key){
-            return ({
-                result: 'fail',
-                msg: '참가중인 프로젝트 있음'
-            });
-        }
+        // 참여중인 프로젝트 체크
+        // const userChk = await User.findOne({_id:user_key, det_dttm:null});
+        // if(userChk.data.user.join_p_key){
+        //     return ({
+        //         result: 'fail',
+        //         msg: '참가중인 프로젝트 있음'
+        //     });
+        // }
         // 참여코드 확인
         let project = await Project.findOne(
                 {_id:project_key, det_dttm:null},
