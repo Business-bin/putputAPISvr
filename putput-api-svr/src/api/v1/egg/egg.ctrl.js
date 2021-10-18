@@ -189,6 +189,7 @@ exports.findOne = async (param) => {
 }
 
 exports.search = async (param) => {
+    param.det_dttm = null;
     if(!essentialVarChk.valueCheck([param.user_id])){
         return ({
             result: 'fail',
