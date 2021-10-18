@@ -176,11 +176,18 @@ exports.delete = async (param) => {
             returnNewDocument: true, // 결과 반환
             new: true
         }).exec();
-        const user = await User.projectCntUpdate({_id:param.user_key}, -1);
-        if(user.result === 'fail') {
-            await projectDelFail("USER", param);
+        const userProjectCnt = await User.projectCntUpdate({_id:param.user_key}, -1);
+        if(userProjectCnt.result === 'fail') {
+            await projectDelFail("USERPROJECTCNT", param);
             throw Error("유저 create_p 업데이트 에러");
         }
+
+        const user = await User.joinProjectUpdate({join_p_key:param.project_key}, {$set:{join_p_key:null, join_p_jointeamkey:null}});
+        if(user.result === 'fail') {
+            // await projectDelFail("USER", user.data.userRe);
+            throw Error("유저 join_p_key 업데이트 에러");
+        }
+
         const box = await Box.delete({project_key:param.project_key});
         if(box.result === 'fail'){
             await projectDelFail("BOX", param);
@@ -494,7 +501,7 @@ exports.updateState = async (param) => {
 }
 
 projectDelFail = async (ob, param) => {
-    if(ob === "USER"){
+    if(ob === "USERPROJECTCNT"){
         await fail.updateProcessiong([
             {failOb:"PROJECT", matchQ: {_id : param.project_key, user_key : param.user_key}, field: {$set:{det_dttm:null}}}
         ]);

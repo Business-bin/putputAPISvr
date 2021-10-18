@@ -345,11 +345,45 @@ exports.projectCntUpdate = async (param, cnt) => {
             }
         });
     }catch (e) {
-        log.error(`project register user =>`);
+        log.error(`user projectCntUpdate =>`);
         console.log(e);
         return ({
             result: 'fail',
             msg: '수정 실패 user'
+        });
+    }
+}
+
+exports.joinProjectUpdate = async (param, filds) => {
+    param.det_dttm = null;
+    if(!ObjectId.isValid(param.join_p_key)) {
+        return ({
+            result: 'fail',
+            msg: '형식 오류'
+        });
+    }
+    // let userRe = [];
+    try{
+        // userRe = await User.find(
+        //     param,
+        //     {"_id":true, "join_p_key":true, "join_p_jointeamkey":true}
+        // ).exec();
+        const user = await User.updateMany(param, filds).exec();
+        return ({
+            result: 'ok',
+            data: {
+                user
+            }
+        });
+    }catch (e) {
+        log.error(`user joinProjectUpdate =>`);
+        console.log(e);
+        return ({
+            result: 'fail',
+            msg: '수정 실패 user',
+            // data: {
+            //     userRe
+            // }
         });
     }
 }

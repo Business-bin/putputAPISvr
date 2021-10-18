@@ -119,13 +119,17 @@ exports.delete = async (param) => {
                 msg: '형식 오류'
             });
         }
-        const egg = await Egg.findOneAndUpdate(matchQ, {$set:fields}, {
+        let egg = await Egg.findOneAndUpdate(matchQ, {$set:fields}, {
             upsert: false,
             returnNewDocument: true,
             new: true
         }).exec();
-        console.log(egg);
-        if(egg){
+        if(!egg) {
+            return ({
+                result: 'fail',
+                msg: '글이 존재하지 않습니다.'
+            });
+        }else{
             return ({
                 result: 'ok',
                 data: {
@@ -152,13 +156,13 @@ exports.findOne = async (param) => {
             });
         }
         let egg = await Egg.findOne(
-            {_id : param.egg_key},
+            {_id : param.egg_key, det_dttm:null},
             {"_id":true, "user_id":true, "contents":true, "pic_url":true, "emotion":true
             , "reg_dttm":true}
         ).exec();
         if(egg) {
             // 조회수 업데이트
-            await Egg.findOneAndUpdate({_id : param.egg_key}, {$inc:{show_cnt:+1}}, {
+            await Egg.findOneAndUpdate({_id : param.egg_key,det_dttm:null}, {$inc:{show_cnt:+1}}, {
                 upsert: false,
                 returnNewDocument: true, // 결과 반환
                 new: true

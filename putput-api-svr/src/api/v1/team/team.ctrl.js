@@ -91,7 +91,6 @@ exports.updateJoinCnt = async (param) => {
 
 exports.delete = async (param) => {
     param.det_dttm = null;
-    console.log(param)
     const fields = {
         det_dttm : datefomat.getCurrentDate()
     }
@@ -101,7 +100,6 @@ exports.delete = async (param) => {
             multi: true,
             new: true
         }).exec();
-        console.log(team)
         return ({
             result: 'ok',
             data: {

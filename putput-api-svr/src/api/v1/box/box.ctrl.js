@@ -115,6 +115,7 @@ exports.delete = async (param) => {
 
 exports.findOne = async (param) => {
     try {
+        param.det_dttm = null;
         let box =
             await Box.findOne(
                 param,
@@ -202,7 +203,7 @@ exports.missionRewardFindOne = async (param) => {
                 data: null
             });
         }
-        const project = await Project.findOne({_id:box.project_key});
+        const project = await Project.findOne({_id:box.project_key, det_dttm:null});
         const mission = await Mission.findOne({_id:box.mission_key, det_dttm:null});
         const reward = await Reward.findOne({_id:box.reward_key, det_dttm:null});
         return ({
