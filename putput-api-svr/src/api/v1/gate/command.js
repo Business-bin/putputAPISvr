@@ -7,6 +7,7 @@ const Mission = require('../mission');
 const Reward = require('../reward');
 const Egg = require('../egg');
 const Comment = require('../comment');
+const Notice = require('../notice');
 
 const cmds = {
     // 유저
@@ -68,6 +69,8 @@ const cmds = {
     'req_CommentModify': Comment.update,
     'req_CommentDelete': Comment.delete,
 
+    // 공지
+    'req_SendPush': Notice.sendPush
 }
 
 

@@ -17,8 +17,8 @@ exports.register = async (param) => {
         user_pw,
         name,
         email,
-        phone
-        // nick
+        phone,
+        push_id
     } = param;
     if(!essentialVarChk.valueCheck([user_id,user_pw,name,email,phone])){
         return ({
@@ -70,8 +70,8 @@ exports.register = async (param) => {
             user_pw,
             name,
             email,
-            phone
-            // nick
+            phone,
+            push_id
         });
         const account = {
             user_key : user._id
@@ -204,7 +204,7 @@ exports.findOne = async (param) => {
 
 // 로그인
 exports.login = async (param) => {
-    const { user_id, user_pw } = param;
+    const { user_id, user_pw, push_id } = param;
     if(!essentialVarChk.valueCheck([user_id, user_pw])){
         return ({
             result: 'fail',
@@ -217,7 +217,7 @@ exports.login = async (param) => {
             await User.findOne(
                 param,
                 {"_id":true, "user_id":true, "user_pw":true, "email":true, "max_p":true
-                    , "create_p":true, "join_p_key":true, "join_p_jointeamkey":true}
+                    , "create_p":true, "join_p_key":true, "join_p_jointeamkey":true, "push_id":true}
             ).exec();
         if(!user) {
             return ({
@@ -233,6 +233,13 @@ exports.login = async (param) => {
             user = JSON.parse(JSON.stringify(user));
             user.user_key = user._id;
             delete user._id;
+            if(push_id && push_id != user.push_id){
+                await User.findOneAndUpdate({_id:user.user_key}, {$set:{push_id}}, {
+                    upsert: false,
+                    returnNewDocument: true, // 결과 반환
+                    new: true
+                }).exec();
+            }
             // 프로젝트 조회
             const project = await Project.findOne({_id:user.join_p_key});
             // 팀 조회

@@ -16,6 +16,7 @@ const User = new Schema({
     name:           String,             // 이름
     email:          String,             // 이메일
     phone:          String,             // 핸드폰번호
+    push_id:        String,             // 원시그널 유저아이디
     nick:           String,             // 닉네임
     lv:             String,             // 권한 (admin, user)
     max_p: {                            // 최대프로젝트개수
@@ -35,13 +36,14 @@ const User = new Schema({
 });
 
 User.statics.localRegister = async function({
-    user_id, user_pw, name, email, phone }) {
+    user_id, user_pw, name, email, phone, push_id }) {
     const user = new this({
         user_id,
         user_pw,
         name,
         email,
         phone,
+        push_id,
         nick : "",
         reg_dttm : datefomat.getCurrentDate(),
         det_dttm : null
