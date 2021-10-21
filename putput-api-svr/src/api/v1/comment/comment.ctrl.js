@@ -1,10 +1,13 @@
 const Comment = require('../../../db/models/Comment');
+const OneSignal = require('../../../db/models/oneSignal');
 const { Types: { ObjectId } } = require('mongoose');
 const datefomat = require('../../../lib/dateFomat');
 const Egg = require('../egg/egg.ctrl');
+const User = require('../user/user.ctrl');
 const log = require('../../../lib/log');
 const essentialVarChk = require('../../../lib/essentialVarChk');
 const fail = require('../../../lib/fail');
+const push = require('../../../lib/sendPush');
 
 exports.register = async (param) => {
     const {
@@ -26,10 +29,6 @@ exports.register = async (param) => {
             ac_comment,
             emotion
         });
-        // comment = {
-        //     comment_key : comment._id,
-        //     date : comment.reg_dttm
-        // }
         const eggParam = {
             id:egg_key,
             cnt:+1 // {$inc:{comment_cnt:+1}}
@@ -39,6 +38,10 @@ exports.register = async (param) => {
             await fail.deleteProcessiong([{failOb:"COMMENT", field:{_id:comment.comment_key}}]);
             throw Error("알 댓글 카운트 업데이트 에러");
         }
+        const user = await User.findOne({user_id:egg.data.egg.user_id});
+        const one = await OneSignal.findOne().exec();
+        const sendPushMsg = await push.sendPushMsg(one.aId, one.aKey, "알에 새로운 댓글이 달렸어요!",user.data.user.push_id);
+        log.info('sendPushMsg = '+sendPushMsg);
         return ({
             result: 'ok',
             data: {

@@ -185,6 +185,7 @@ exports.findPw = async (param) => {
 };
 
 exports.findOne = async (param) => {
+    param.det_dttm = null;
     try {
         let user = await User.findOne(param).exec();
         return ({
