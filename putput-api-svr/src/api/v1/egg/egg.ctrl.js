@@ -193,7 +193,7 @@ exports.findOne = async (param) => {
 }
 
 exports.search = async (param) => {
-    param.det_dttm = null;
+    // param.det_dttm = null;
     if(!essentialVarChk.valueCheck([param.user_id])){
         return ({
             result: 'fail',
@@ -201,14 +201,20 @@ exports.search = async (param) => {
         });
     }
     try {
+        const page = param.page ? parseInt(param.page) : 1;                     // 현재 페이지번호
+        const skipSize = (page-1) * 10;                                         // 스킵할 데이터 개수
+        const limitSize = 10;                                                   // 검색할 데이터 개수
+        const total = await Egg.count({user_id:param.user_id, det_dttm:null});  // 총 데이터 개수
+        const paging = Math.ceil(total/limitSize);                           // 총 페이지 번호
+
         let egg = await Egg.find(
-            param
+            {user_id:param.user_id, det_dttm:null}
             ,{"_id":true, "user_id":true, "contents":true, "pic_url":true, "emotion":true
                 , "reg_dttm":true}
-        ).exec();
+        ).sort({"reg_dttm": -1}).skip(skipSize).limit(limitSize).exec();
 
         for(let e in egg){
-            let commentList = await Comment.search({egg_key:egg[e]._id, det_dttm: null});
+            let commentList = await Comment.search({egg_key:egg[e]._id, page:page, det_dttm: null});
             egg[e] = JSON.parse(JSON.stringify(egg[e]));
             egg[e].egg_key = egg[e]._id;
             egg[e].date = egg[e].reg_dttm;
@@ -219,6 +225,7 @@ exports.search = async (param) => {
         return ({
             result: 'ok',
             data: {
+                paging : paging,
                 egg
             }
         });
