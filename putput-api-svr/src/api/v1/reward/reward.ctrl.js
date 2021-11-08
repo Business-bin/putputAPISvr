@@ -139,11 +139,27 @@ exports.search = async (param) => {
             });
         }
         param.det_dttm = null;
-        let reward =
-            await Reward.find(
-                param,
-                {"_id":true, "contents":true, "img_url":true}
-            ).exec();
+        let reward;
+        let paging;
+        if(param.page || param.page == ''){
+            const page = param.page ? parseInt(param.page) : 1;
+            delete param.page;
+            const skipSize = (page-1) * 10;
+            const limitSize = 10;
+            const total = await Reward.count(param);
+            paging = Math.ceil(total/limitSize);
+            reward =
+                await Reward.find(
+                    param,
+                    {"_id":true, "contents":true, "img_url":true}
+                ).skip(skipSize).limit(limitSize).exec();
+        }else{
+            reward =
+                await Reward.find(
+                    param,
+                    {"_id":true, "contents":true, "img_url":true}
+                ).exec();
+        }
         if(reward){
             reward = JSON.parse(JSON.stringify(reward));
             for(let r in reward){
@@ -153,6 +169,7 @@ exports.search = async (param) => {
         }
         return ({
             result: 'ok',
+            paging: paging,
             data: {
                 reward
             }

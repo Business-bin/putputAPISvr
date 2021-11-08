@@ -211,7 +211,8 @@ exports.search = async (param) => {
             {user_id:param.user_id, det_dttm:null}
             ,{"_id":true, "user_id":true, "contents":true, "pic_url":true, "emotion":true
                 , "reg_dttm":true}
-        ).sort({"reg_dttm": -1}).skip(skipSize).limit(limitSize).exec();
+        ).skip(skipSize).limit(limitSize).exec();
+        // ).sort({"reg_dttm": -1}).skip(skipSize).limit(limitSize).exec();
 
         for(let e in egg){
             let commentList = await Comment.search({egg_key:egg[e]._id, page:page, det_dttm: null});

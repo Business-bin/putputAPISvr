@@ -339,13 +339,12 @@ exports.search = async (param) => {
         const limitSize = 10;                                                   // 검색할 데이터 개수
         const total = await Project.count(param);                               // 총 데이터 개수
         const paging = Math.ceil(total/limitSize);                           // 총 페이지 번호
-        delete param.page;
 
         const project = await Project.find(
             param
             ,{_id:true, user_key:true, title:true, join_code:true
                 , teams:true, state:true, box_cnt:true}
-        ).sort({"reg_dttm": -1}).skip(skipSize).limit(limitSize).exec();
+        ).skip(skipSize).limit(limitSize).exec();
         for(let p in project){
             // 팀 조회
             const teamlist = await Team.search({project_key:project[p]._id});

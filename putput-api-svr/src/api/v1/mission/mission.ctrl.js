@@ -149,12 +149,29 @@ exports.search = async (param) => {
             });
         }
         param.det_dttm = null;
-        let mission =
-            await Mission.find(
-                param,
-                {"_id":true, "question":true, "ex1":true, "ex2":true, "ex3":true, "ex4":true
-                    , "solution":true, "exposition":true}
-            ).exec();
+        let mission;
+        let paging;
+        if(param.page || param.page == ''){
+            const page = param.page ? parseInt(param.page) : 1;
+            delete param.page;
+            const skipSize = (page-1) * 10;
+            const limitSize = 10;
+            const total = await Mission.count(param);
+            paging = Math.ceil(total/limitSize);
+            mission =
+                await Mission.find(
+                    param,
+                    {"_id":true, "question":true, "ex1":true, "ex2":true, "ex3":true, "ex4":true
+                        , "solution":true, "exposition":true}
+                ).skip(skipSize).limit(limitSize).exec();
+        }else{
+            mission =
+                await Mission.find(
+                    param,
+                    {"_id":true, "question":true, "ex1":true, "ex2":true, "ex3":true, "ex4":true
+                        , "solution":true, "exposition":true}
+                ).exec();
+        }
         if(mission){
             mission = JSON.parse(JSON.stringify(mission));
             for(let m in mission){
@@ -164,6 +181,7 @@ exports.search = async (param) => {
         }
         return ({
             result: 'ok',
+            paging: paging,
             data: {
                 mission
             }
