@@ -154,8 +154,8 @@ exports.search = async (param) => {
         if(param.page || param.page == ''){
             const page = param.page ? parseInt(param.page) : 1;
             delete param.page;
-            const skipSize = (page-1) * 10;
-            const limitSize = 10;
+            const skipSize = (page-1) * 100;
+            const limitSize = 100;
             const total = await Mission.count(param);
             paging = Math.ceil(total/limitSize);
             mission =

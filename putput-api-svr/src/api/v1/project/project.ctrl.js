@@ -335,8 +335,8 @@ exports.search = async (param) => {
     try {
         const page = param.page ? parseInt(param.page) : 1;                     // 현재 페이지번호
         delete param.page;
-        const skipSize = (page-1) * 10;                                         // 스킵할 데이터 개수
-        const limitSize = 10;                                                   // 검색할 데이터 개수
+        const skipSize = (page-1) * 100;                                         // 스킵할 데이터 개수
+        const limitSize = 100;                                                   // 검색할 데이터 개수
         const total = await Project.count(param);                               // 총 데이터 개수
         const paging = Math.ceil(total/limitSize);                           // 총 페이지 번호
 
